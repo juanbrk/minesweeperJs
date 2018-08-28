@@ -6,31 +6,29 @@ import PropTypes from 'prop-types';
 
 const boardRow = (props) => {
 
+    // We map every element of tilesArray thats passed as prop into a new tile, tilesArray is an array of JS
+    // Object ressembling tiles
     let tiles = props.tilesArray.map((tile, index) => {
-        /*
-            RETORNAR UN UNICO DIV CLASSNAME=CLASSES.BOARDROW 
-            HACER LA LOGICA DE LA X CANTIDAD DE TILES DENTRO DE ESE DIV
-        */
         return <Tile
-            //key={persona.id}
+            //key={persona.id} SOLUCIONAR LA GENERACION DE LA KEY
             //clicked={() => this.props.clicked(indice)}
             //position={indice}
             containsMine={tile.containsMine}
             isRevealed={tile.isRevealed}
             isFlagged={tile.isFlagged}
-            neightbour={tile.neighbour}
+            neighbour={tile.neighbour}
         />
-    });;
+    });
 
     //Retornar la lista de tiles
-    return <div 
-    className={classes.boardRow}>
-    {tiles}
+    return <div
+        className={classes.boardRow}>
+        {tiles}
     </div>
 }
 
 export default boardRow;
 
 boardRow.propTypes = {
-    tiles: PropTypes.array
+    tilesArray: PropTypes.array
 }
