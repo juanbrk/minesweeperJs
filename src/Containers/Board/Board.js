@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import BoardRow from '../../Components/BoardRow/BoardRow';
 import PropTypes from 'prop-types';
+//uuid is an npm package that generates unique ids to use on lists. 
+import Uuidv4 from 'uuid'
 import classes from './Board.css';
 
 /*
@@ -20,7 +22,9 @@ class board extends PureComponent {
         return data.map((dataRow, index) =>{
             //Create an array with the objects of that dataRow to pass on to BoardRow as prop 
             const arrayTiles = [...dataRow]
-            return <BoardRow tilesArray={arrayTiles} />
+            return <BoardRow 
+                tilesArray={arrayTiles}
+                key={Uuidv4()} />
         });
     }
 
@@ -30,6 +34,7 @@ class board extends PureComponent {
         for (let i = 0; i < height; i++) {
             data.push([]);
             for (let j = 0; j < width; j++) {
+                let rand = Math.random();
                 data[i][j] = {
                     x: i,
                     y:j,
@@ -37,7 +42,7 @@ class board extends PureComponent {
                     neighbour: 0,
                     isRevealed: false,
                     isEmpty: false,
-                    isFlagged: true,
+                    isFlagged: false,
                 };
             }
         }
