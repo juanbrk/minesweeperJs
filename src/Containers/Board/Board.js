@@ -19,10 +19,10 @@ class board extends PureComponent {
 
     //Method that takes in a 2D array with tile objects and creates BoardRows elements
     renderBoard = (data) => {
-        return data.map((dataRow, index) =>{
+        return data.map((dataRow, index) => {
             //Create an array with the objects of that dataRow to pass on to BoardRow as prop 
             const arrayTiles = [...dataRow]
-            return <BoardRow 
+            return <BoardRow
                 tilesArray={arrayTiles}
                 key={Uuidv4()} />
         });
@@ -30,14 +30,12 @@ class board extends PureComponent {
 
     //Creates a 2D array wit empty "tiles" objects in it. They will be loaded with info later. 
     createEmptyArray(height, width) {
-        let data = [];
+        let emptyTilesArr = [];
         for (let i = 0; i < height; i++) {
-            data.push([]);
+            emptyTilesArr.push([]);
             for (let j = 0; j < width; j++) {
                 let rand = Math.random();
-                data[i][j] = {
-                    x: i,
-                    y:j,
+                emptyTilesArr[i][j] = {
                     containsMine: false,
                     neighbour: 0,
                     isRevealed: false,
@@ -46,13 +44,30 @@ class board extends PureComponent {
                 };
             }
         }
-        return data;
+        return emptyTilesArr;
+    }
 
+    //Populates board with as many mines as were passed as props. 
+    populateBoard(tilesArr, height, width, mines) {
+        let xPosition = 0, yPosition = 0, minesPlanted = 0, init = 0;
+
+        while (minesPlanted < mines) {
+            //generate random inclusive number with perfectly even distribution among widht and height
+            xPosition = Math.floor(Math.random() * (height - init)) + init;
+            yPosition =  Math.floor(Math.random() * (width - init)) + init;
+
+            if (!(tilesArr[xPosition][yPosition].containsMine)) {
+                tilesArr[xPosition][yPosition].containsMine = true;
+                minesPlanted++;
+            }
+        }
+        return (tilesArr);
     }
 
     render() {
-        let tiles = this.createEmptyArray(this.props.height,this.props.width);
-        let board = this.renderBoard(tiles);
+        let emptyTiles = this.createEmptyArray(this.props.height, this.props.width);
+        let populatedTiles = this.populateBoard(emptyTiles, this.props.height, this.props.width, 10);
+        let board = this.renderBoard(populatedTiles);
         return (
             <div>
                 {board}
