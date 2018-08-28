@@ -48,6 +48,7 @@ class App extends Component {
       <Board
         height={5}
         width={6}
+        mineCount={10}
       />
 
 
