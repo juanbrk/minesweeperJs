@@ -1,35 +1,58 @@
 import React, { Component } from 'react';
 import './App.css';
-import Tile from './Components/Tile/Tile'
+import BoardRow from './Components/BoardRow/BoardRow';
 
 class App extends Component {
   render() {
-    let num = 0;
-    let numi = 4;
+    //DEBUG PURPOSE ONLY
+
+    let arrayTiles = [
+      {
+      containsMine: false,
+      isRevealed:false,
+      isFlagged:true,
+      neighbour: 0
+    },
+      {
+      containsMine: true,
+      isRevealed:false,
+      isFlagged:true,
+      neighbour: 5
+    },
+      {
+      containsMine: false,
+      isRevealed:false,
+      isFlagged:true,
+      neighbour: 4
+    },
+      {
+      containsMine: true,
+      isRevealed:false,
+      isFlagged:true,
+      neighbour: 1
+    },
+      {
+      containsMine: true,
+      isRevealed:false,
+      isFlagged:true,
+      neighbour: 1
+    },
+
+    ];
+
+    //DEBUG PURPOSE ONLY
+
     return (
       <div className="App">
-        <Tile 
-        containsMine={true}
-        isRevealed={false}
-        isFlagged={false}/>
-        <Tile 
-        containsMine={false}
-        isRevealed={false}
-        isFlagged={true}/>
-        <Tile 
-        containsMine={false}
-        isRevealed={false}
-        isFlagged={false}
-        neighbour={num}/>
-        <Tile 
-        containsMine={false}
-        isRevealed={false}
-        isFlagged={false}
-        neighbour={numi}/>
-        <Tile 
-        containsMine={false}
-        isRevealed={false}
-        isFlagged={false}/>
+      <BoardRow 
+      tilesArray={arrayTiles}/>
+      <BoardRow 
+      tilesArray={arrayTiles}/>
+      <BoardRow 
+      tilesArray={arrayTiles}/>
+      <BoardRow 
+      tilesArray={arrayTiles}/>
+   
       </div>
     );
   }

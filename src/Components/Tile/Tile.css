@@ -6,7 +6,7 @@
 .tile {
     background: lightslategray;
     border: 1px solid #fff;
-    float: left;
+    float:left ;
     line-height: 45px;
     height: 45px;
     text-align: center;
