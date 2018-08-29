@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import BoardRow from '../../Components/BoardRow/BoardRow';
+import Tile from '../../Components/Tile/Tile'
 import PropTypes from 'prop-types';
 //uuid is an npm package that generates unique ids to use on lists. 
 import Uuidv4 from 'uuid'
@@ -11,37 +11,62 @@ PureComponent that comes with built-in checks for components that should update 
 It is a stateful component since it stores the value of every tile, result of game, game status, remaining mines
 */
 class board extends PureComponent {
+    constructor(props) {
+        super(props);
+
+        //Binding tileClickedHandler to this
+        this.tileClickedHandler = this.tileClickedHandler.bind(this);
+    }
     state = {
         mineCount: this.props.mines,
         gameStatus: null,
         boardData: this.initializeBoard(this.props.height, this.props.width, this.props.mineCount)
     }
-    
+
 
     // Method that creates a board of empty tiles, populates it with mines and gets the number of neighbouring
     // mines for every tile on the board. Returns the initialized board FROM THE STATE. 
-    initializeBoard(height, width, mines){
+    initializeBoard(height, width, mines) {
         const emptyTiles = this.createEmptyArray(height, width);
         const populatedTiles = this.populateBoard(emptyTiles, height, width, mines);
-        const neighbourTiles = this.getNumOfMinesNeighbours(populatedTiles,height, width);
+        const neighbourTiles = this.getNumOfMinesNeighbours(populatedTiles, height, width);
         return this.renderBoard(neighbourTiles);
-       
+
     }
 
-    //Method that takes in a 2D array with tile objects and creates BoardRows elements
-    renderBoard(data){
-        return data.map((dataRow, index) => {
-            //Create an array with the objects of that dataRow to pass on to BoardRow as prop 
-            const arrayTiles = [...dataRow]
-            return <BoardRow
-                tilesArray={arrayTiles}
-                key={Uuidv4()}
-                //tileClick = {} 
-                />
+    // Method that accepts a 2D array with tile objects and returns tiles displayed in rows
+    renderBoard(data) {
+        return data.map((dataRow, rowIndex) => {
+            return (
+                <div
+                    key={Uuidv4()}
+                    className={classes.boardRow}>
+                    {
+                        //We render the rows that will contain the tiles
+                        this.renderBoardRows(dataRow, rowIndex)
+                    }
+                </div>
+            );
         });
     }
 
-    //Creates a 2D array wit empty "tiles" objects in it. They will be loaded with info later. 
+    // Method that takes in the row of the 2D data array containing mines and returns as many tiles as
+    // columns there are in the row
+    renderBoardRows(dataRow, rowIndex) {
+        return dataRow.map((dataRowTile, colIndex) => {
+            return (
+            <Tile 
+                key={Uuidv4()} 
+                clicked={() => this.tileClickedHandler(rowIndex, colIndex)} 
+                containsMine={dataRowTile.containsMine} 
+                isRevealed={dataRowTile.isRevealed} 
+                isFlagged={dataRowTile.isFlagged} 
+                neighbour={dataRowTile.neighbour}/>
+            );
+        });
+    }
+
+    //Creates a 2D array with empty "tiles" objects in it. They will be loaded with info later. 
     createEmptyArray(height, width) {
         let emptyTilesArr = [];
         for (let i = 0; i < height; i++) {
@@ -81,10 +106,10 @@ class board extends PureComponent {
     // Method that gets the amount of mines that a tile's neighbours have and returns a new (updated) array
     // with information on every tile and its neighbouring tiles.  
     getNumOfMinesNeighbours(data, height, width) {
-        
+
         //Create a new copy of the original array to avoid reference issues
         let updatedData = [...data];
-        
+
         //We get the neighbours of the tile and then check how many of them have mines
         for (let i = 0; i < height; i++) {
             for (let j = 0; j < width; j++) {
@@ -144,7 +169,12 @@ class board extends PureComponent {
         return el;
     }
 
-    render() {  
+    ////////////////////////////////////////////////// Handler methods
+    tileClickedHandler = (x, y) => {
+        console.log("was clicked");
+    }
+
+    render() {
         return (
             <div>
                 {this.state.boardData}

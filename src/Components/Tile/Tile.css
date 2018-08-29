@@ -1,6 +1,9 @@
 /*
     CamelCase syntax in favor over kebab syntax in order to be able to use Css modules on Tile.js
     using {classes.camelCaseName} instead of {classes.kebab-case-name}
+
+    from documentation: this is recommended because the common alternative, kebab-casing may cause 
+    unexpected behavior when trying to access style.class-name as a dot notation
 */
 
 .tile {

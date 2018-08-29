@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './App.css';
-import BoardRow from './Components/BoardRow/BoardRow';
 import Board from './Containers/Board/Board';
 
 class App extends Component {

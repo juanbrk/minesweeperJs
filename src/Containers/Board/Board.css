@@ -1,0 +1,8 @@
+.boardRow{
+    clear:both;
+    display:inline-table;
+    content: "";
+    height: 20px;
+    margin-left: 10%;
+    margin-right: 10%;
+}
