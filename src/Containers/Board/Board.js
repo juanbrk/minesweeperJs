@@ -14,8 +14,9 @@ class board extends PureComponent {
     constructor(props) {
         super(props);
 
-        //Binding tileClickedHandler to this
+        //Binding class methods to this
         this.tileClickedHandler = this.tileClickedHandler.bind(this);
+        this.renderBoard = this.renderBoard.bind(this);
     }
     state = {
         mineCount: this.props.mines,
@@ -29,9 +30,7 @@ class board extends PureComponent {
     initializeBoard(height, width, mines) {
         const emptyTiles = this.createEmptyArray(height, width);
         const populatedTiles = this.populateBoard(emptyTiles, height, width, mines);
-        const neighbourTiles = this.getNumOfMinesNeighbours(populatedTiles, height, width);
-        return this.renderBoard(neighbourTiles);
-
+        return this.getNumOfMinesNeighbours(populatedTiles, height, width);
     }
 
     // Method that accepts a 2D array with tile objects and returns tiles displayed in rows
@@ -116,7 +115,8 @@ class board extends PureComponent {
                 if (!data[i][j].containsMine) {
                     let mine = 0;
                     const neighbours = this.traverseBoard(data[i][j].rowIndex, data[i][j].colIndex, data);
-                    neighbours.map(neighbouringTile => {
+                    //Replaced .map() method with a forEach() below
+                    neighbours.forEach(neighbouringTile => {
                         if (neighbouringTile.containsMine) {
                             mine++;
                         }
@@ -170,14 +170,34 @@ class board extends PureComponent {
     }
 
     ////////////////////////////////////////////////// Handler methods
+    /*
+        handles tile click. Accepts 2D[x][y] indexes to reveal the tile that was clicked. This reveal will be done according to the content
+        of the mine which can be a bomb, or not. If not a bomb and it is not empty, it shows the number of neighbouring tiles containing 
+        mines. If not a bomb and empty, it starts a recursive function to reveal all empty neighbouring tiles and its neighbouring tiles
+        containing mines
+     */
     tileClickedHandler = (x, y) => {
-        console.log("was clicked");
+        //Obtain the clicked object, this will allow us to update state in a immutable way later
+        const clickedTile = {...this.state.boardData[x][y]};
+        console.log(clickedTile);
+
+        // //Check if clicked tile has not been revealed or flagged yet, if revealed do nothing. 
+        // if( !clickedTile.isRevealed || !clickedTile.isFlagged ){
+        //     console.log(clickedTile.isRevealed);
+        //     console.log(clickedTile.isFlagged);
+        //     //If not revealed yet, check for mines
+        //     if(clickedTile.containsMine){
+
+        //     }
+
+        // }
     }
 
     render() {
+        const board = this.renderBoard(this.state.boardData);
         return (
-            <div>
-                {this.state.boardData}
+            <div className={classes.board}>
+                {board}
             </div>
         );
     }

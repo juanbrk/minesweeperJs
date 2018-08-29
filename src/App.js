@@ -4,43 +4,9 @@ import Board from './Containers/Board/Board';
 
 class App extends Component {
   render() {
-    //DEBUG PURPOSE ONLY
+    //DEBUG PURPOSE ONLY ZONE
 
-    let arrayTiles = [
-      {
-      containsMine: false,
-      isRevealed:false,
-      isFlagged:true,
-      neighbour: 0
-    },
-      {
-      containsMine: true,
-      isRevealed:false,
-      isFlagged:true,
-      neighbour: 5
-    },
-      {
-      containsMine: false,
-      isRevealed:false,
-      isFlagged:true,
-      neighbour: 4
-    },
-      {
-      containsMine: true,
-      isRevealed:false,
-      isFlagged:true,
-      neighbour: 1
-    },
-      {
-      containsMine: true,
-      isRevealed:false,
-      isFlagged:true,
-      neighbour: 1
-    },
-
-    ];
-
-    //DEBUG PURPOSE ONLY
+    //DEBUG PURPOSE ONLY ZONE
 
     return (
       <div className="App">
@@ -49,9 +15,6 @@ class App extends Component {
         width={6}
         mineCount={10}
       />
-
-
-   
       </div>
     );
   }
