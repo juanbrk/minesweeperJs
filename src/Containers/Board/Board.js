@@ -169,6 +169,21 @@ class board extends PureComponent {
         return el;
     }
 
+    // Method that reveals the content of every tile on the board. Called when Game over or winning. 
+    revealBoardContent = () => {
+        //Create a new array from the currentBoardData from state
+        const updatedData = [...this.state.boardData];
+        //Update every tile isRevealedProperty to true
+        updatedData.forEach((datarow) => {
+          datarow.forEach((dataitem) => {
+            dataitem.isRevealed = true;
+          });
+        });
+        this.setState({
+          boardData: updatedData
+        })
+      }
+
     ////////////////////////////////////////////////// Handler methods
     /*
         handles tile click. Accepts 2D[x][y] indexes to reveal the tile that was clicked. This reveal will be done according to the content
@@ -179,18 +194,20 @@ class board extends PureComponent {
     tileClickedHandler = (x, y) => {
         //Obtain the clicked object, this will allow us to update state in a immutable way later
         const clickedTile = {...this.state.boardData[x][y]};
-        console.log(clickedTile);
 
-        // //Check if clicked tile has not been revealed or flagged yet, if revealed do nothing. 
-        // if( !clickedTile.isRevealed || !clickedTile.isFlagged ){
-        //     console.log(clickedTile.isRevealed);
-        //     console.log(clickedTile.isFlagged);
-        //     //If not revealed yet, check for mines
-        //     if(clickedTile.containsMine){
+        //Check if clicked tile has not been revealed or flagged yet, if revealed do nothing. 
+        if( !clickedTile.isRevealed || !clickedTile.isFlagged ){
+            //If not revealed yet, check for mines
+            if(clickedTile.containsMine){
+                //If contains mine, player looses, game status is updated and board content revealed
+                alert("There is a mine, you explode! and loose btw");
+                this.setState({
+                    gameStatus: "GAME OVER"
+                });
+                this.revealBoardContent();
+            }
 
-        //     }
-
-        // }
+        }
     }
 
     render() {

@@ -18,28 +18,7 @@ const tile = (props) => {
     }
 
     let content = null;
-
-    //If not yet revealed
-    if (!props.isRevealed) {
-        //if this tile contains mine show it
-        if (props.containsMine) {
-            content = "B";
-        } else {
-            //if it doesnt contain mine
-            //check if flagged and assign content accordingly
-            if (!props.isFlagged) {
-                //If not flagged it can be free or have neighbouring mines
-                if (props.neighbour === 0) {
-                    content = 'L';
-                } else {
-                    content = props.neighbour;
-                }
-            } else {
-                //if flagged
-                content = 'F'
-            }
-        }
-    }
+    content = getContent(props, content);
 
 
     return (
@@ -63,4 +42,29 @@ tile.propTypes = {
     neighbour: PropTypes.number,
     // Is empty is needed to specify if none of the 8 neighbouring tiles contains a mine
     isEmpty: PropTypes.bool
+}
+
+function getContent(props, content) {
+    //If not yet revealed
+    if (props.isRevealed) {
+        //if this tile contains mine show it
+        if (props.containsMine) {
+            content = "B";
+        }
+        else {
+            //if it doesnt contain mine
+            //check if flagged and assign content accordingly
+            if (!props.isFlagged) {
+                //If not flagged it can be free or have neighbouring mines
+                if (props.neighbour !== 0) {
+                    content = props.neighbour;
+                }
+            }
+            else {
+                //if flagged
+                content = 'F';
+            }
+        }
+    }
+    return content;
 }
