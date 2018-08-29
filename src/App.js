@@ -11,9 +11,9 @@ class App extends Component {
     return (
       <div className="App">
       <Board
-        height={5}
-        width={6}
-        mineCount={10}
+        height={7}
+        width={7}
+        mineCount={3}
       />
       </div>
     );

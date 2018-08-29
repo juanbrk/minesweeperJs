@@ -17,6 +17,7 @@ class board extends PureComponent {
         //Binding class methods to this
         this.tileClickedHandler = this.tileClickedHandler.bind(this);
         this.renderBoard = this.renderBoard.bind(this);
+        this.revealEmpty = this.revealEmpty.bind(this);
     }
     state = {
         mineCount: this.props.mines,
@@ -54,13 +55,13 @@ class board extends PureComponent {
     renderBoardRows(dataRow, rowIndex) {
         return dataRow.map((dataRowTile, colIndex) => {
             return (
-            <Tile 
-                key={Uuidv4()} 
-                clicked={() => this.tileClickedHandler(rowIndex, colIndex)} 
-                containsMine={dataRowTile.containsMine} 
-                isRevealed={dataRowTile.isRevealed} 
-                isFlagged={dataRowTile.isFlagged} 
-                neighbour={dataRowTile.neighbour}/>
+                <Tile
+                    key={Uuidv4()}
+                    clicked={() => this.tileClickedHandler(rowIndex, colIndex)}
+                    containsMine={dataRowTile.containsMine}
+                    isRevealed={dataRowTile.isRevealed}
+                    isFlagged={dataRowTile.isFlagged}
+                    neighbour={dataRowTile.neighbour} />
             );
         });
     }
@@ -169,20 +170,54 @@ class board extends PureComponent {
         return el;
     }
 
-    // Method that reveals the content of every tile on the board. Called when Game over or winning. 
+    // Method that reveals the content of every tile on the board and updates the state with new boardData. Called when Game over or winning. 
     revealBoardContent = () => {
         //Create a new array from the currentBoardData from state
         const updatedData = [...this.state.boardData];
         //Update every tile isRevealedProperty to true
         updatedData.forEach((datarow) => {
-          datarow.forEach((dataitem) => {
-            dataitem.isRevealed = true;
-          });
+            datarow.forEach((dataitem) => {
+                dataitem.isRevealed = true;
+            });
         });
         this.setState({
-          boardData: updatedData
+            boardData: updatedData
         })
-      }
+    }
+
+    // Method that uses recursion and a stack (flood fill maybe?) to reveal all empty || !containsMine and returns the updated board
+    revealEmpty = (xPosition, yPosition, board) => {
+
+        //reveal clicked and empty tile that called upon this method
+        board[xPosition][yPosition].isRevealed = true;
+
+        // Behave as if user had clicked on every surrounding tiles
+        // Get all the neighbouring tiles
+        let neighbours = this.traverseBoard(xPosition, yPosition, board);
+
+        // for every surrounding tile, repeat the process
+        neighbours.forEach(neighbouringTile => {
+            //Once visited, it is going to be revealed, since this is a neighbour of an empty tile, it does not contain mine. 
+
+            //Check if empty. If flagged or already revealed it, ommit it
+            if (!neighbouringTile.isFlagged && !neighbouringTile.isRevealed && !neighbouringTile.containsMine) {
+
+                //vacia o vecino
+                // Check if not empty
+                if (!neighbouringTile.isEmpty) {
+
+                    //if not empty, reveal it
+                    board[neighbouringTile.rowIndex][neighbouringTile.colIndex].isRevealed = true;
+                } else {
+                    // if empty, recursion
+                    this.revealEmpty(neighbouringTile.rowIndex, neighbouringTile.colIndex, board);
+                }
+            }
+        });
+
+        //Update board before 
+        return board;
+    }
 
     ////////////////////////////////////////////////// Handler methods
     /*
@@ -193,18 +228,40 @@ class board extends PureComponent {
      */
     tileClickedHandler = (x, y) => {
         //Obtain the clicked object, this will allow us to update state in a immutable way later
-        const clickedTile = {...this.state.boardData[x][y]};
+        const clickedTile = { ...this.state.boardData[x][y] };
 
         //Check if clicked tile has not been revealed or flagged yet, if revealed do nothing. 
-        if( !clickedTile.isRevealed || !clickedTile.isFlagged ){
+        if (!clickedTile.isRevealed || !clickedTile.isFlagged) {
             //If not revealed yet, check for mines
-            if(clickedTile.containsMine){
+            if (clickedTile.containsMine) {
                 //If contains mine, player looses, game status is updated and board content revealed
-                alert("There is a mine, you explode! and loose btw");
+                alert("There is a mine, you explode! and lose btw");
                 this.setState({
                     gameStatus: "GAME OVER"
                 });
                 this.revealBoardContent();
+            } else {
+                //If is not revealed nor flagged nor contains mine... is it empty?
+                if (clickedTile.isEmpty) {
+                    //if empty, reveal and behave as if user clicked on every surrounding tile
+                    const currentBoard = [...this.state.boardData];
+                    const updatedData = [...this.revealEmpty(x, y, currentBoard)];
+                    this.setState({
+                        boardData: updatedData
+                    });
+                } else {
+                    // If clickedTile !empty, show neighbours, update state
+                    clickedTile.isRevealed = true;
+                    //Create a new array of boardData to update the position of the revealed tile
+                    const updatedBoardData = [...this.state.boardData];
+                    // Assign the position of the revealed tile in the new array to the updated tile
+                    updatedBoardData[x][y] = { ...clickedTile };
+                    // Update state with updated board
+                    this.setState({
+                        boardData: updatedBoardData
+                    });
+
+                }
             }
 
         }

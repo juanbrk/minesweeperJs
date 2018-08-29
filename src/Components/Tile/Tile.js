@@ -19,8 +19,7 @@ const tile = (props) => {
 
     let content = null;
     content = getContent(props, content);
-
-
+    
     return (
 
         <div
