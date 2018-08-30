@@ -7,24 +7,26 @@ const tile = (props) => {
     const assignedClasses = [classes.tile];
 
     //Asignacion dinámica de las clases
+    if (props.isFlagged) {
+        assignedClasses.push(classes.isFlag)
+    }
     if (!props.isRevealed) {
         assignedClasses.push(classes.hidden);
     }
     if (props.containsMine) {
         assignedClasses.push(classes.containsMine)
     }
-    if (props.isFlagged) {
-        assignedClasses.push(classes.isFlag)
-    }
 
     let content = null;
     content = getContent(props, content);
-    
+
     return (
 
         <div
             className={assignedClasses.join(' ')}
-            onClick={props.clicked}>
+            onClick={props.clicked}
+            onContextMenu={props.cMenu}
+        >
             {content}
         </div>
     );
@@ -40,30 +42,33 @@ tile.propTypes = {
     isFlagged: PropTypes.bool,
     neighbour: PropTypes.number,
     // Is empty is needed to specify if none of the 8 neighbouring tiles contains a mine
-    isEmpty: PropTypes.bool
+    isEmpty: PropTypes.bool,
+    cMenu: PropTypes.func
 }
 
 function getContent(props, content) {
-    //If not yet revealed
     if (props.isRevealed) {
+
+        //if tile is revealed show its content. 
+
         //if this tile contains mine show it
         if (props.containsMine) {
             content = "B";
+        } else {
+
+            //if it does not contain mine, show neighbours or empty
+            props.neighbour !== 0 ?
+                content = props.neighbour
+                :
+                null;
         }
-        else {
-            //if it doesnt contain mine
-            //check if flagged and assign content accordingly
-            if (!props.isFlagged) {
-                //If not flagged it can be free or have neighbouring mines
-                if (props.neighbour !== 0) {
-                    content = props.neighbour;
-                }
-            }
-            else {
-                //if flagged
-                content = 'F';
-            }
-        }
+    } else {
+
+        //if not yet revealed, it can be flagged
+        props.isFlagged ?
+            content = "F"
+            :
+            null;
     }
     return content;
 }

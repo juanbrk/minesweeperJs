@@ -21,8 +21,8 @@ class board extends PureComponent {
     }
     state = {
         mineCount: this.props.mines,
-        gameStatus: null,
-        boardData: this.initializeBoard(this.props.height, this.props.width, this.props.mineCount)
+        gameStatus: "make your first move",
+        boardData: this.initializeBoard(this.props.height, this.props.width, this.props.mines)
     }
 
 
@@ -61,7 +61,8 @@ class board extends PureComponent {
                     containsMine={dataRowTile.containsMine}
                     isRevealed={dataRowTile.isRevealed}
                     isFlagged={dataRowTile.isFlagged}
-                    neighbour={dataRowTile.neighbour} />
+                    neighbour={dataRowTile.neighbour}
+                    cMenu={(event) => this.rightClickHandler(event, rowIndex, colIndex)} />
             );
         });
     }
@@ -219,6 +220,26 @@ class board extends PureComponent {
         return board;
     }
 
+    //Check game progress 
+    // TODO
+    // gameProgress() {
+    //     if (minesLeft === 0) {
+
+    //         const mineArray = this.getMines(updatedData);
+
+    //         const FlagArray = this.getFlags(updatedData);
+
+    //         if (JSON.stringify(mineArray) === JSON.stringify(FlagArray)) {
+
+    //             this.revealBoard();
+
+    //             alert("You Win");
+
+    //         }
+
+    //     }
+    // }
+
     ////////////////////////////////////////////////// Handler methods
     /*
         handles tile click. Accepts 2D[x][y] indexes to reveal the tile that was clicked. This reveal will be done according to the content
@@ -231,7 +252,7 @@ class board extends PureComponent {
         const clickedTile = { ...this.state.boardData[x][y] };
 
         //Check if clicked tile has not been revealed or flagged yet, if revealed do nothing. 
-        if (!clickedTile.isRevealed || !clickedTile.isFlagged) {
+        if (!clickedTile.isRevealed && !clickedTile.isFlagged) {
             //If not revealed yet, check for mines
             if (clickedTile.containsMine) {
                 //If contains mine, player looses, game status is updated and board content revealed
@@ -264,6 +285,40 @@ class board extends PureComponent {
                 }
             }
 
+        }
+    }
+
+    // handles right clicks to flag or unflag a tile. Updates the counter of remaining mines and the 
+    // board state with flagged/unflagged tiles
+    rightClickHandler(event, x, y) {
+        event.preventDefault();  // prevents default behaviour such as right click
+        const clickedTile = {...this.state.boardData[x][y]}
+        //ommit if revealed
+        if (!clickedTile.isRevealed){
+
+            let minesLeft = this.state.mineCount;
+
+            //if not revealed it can be flagged or not
+            if (clickedTile.isFlagged){
+
+                //if flagged, unflag it
+                clickedTile.isFlagged= false;
+                minesLeft++;
+            } else{
+
+                //if not flagged, flag it
+                clickedTile.isFlagged = true;
+                minesLeft--;
+            }
+            
+            //Update the state with new tile
+            const updatedData = [...this.state.boardData];
+            updatedData[x][y] = {...clickedTile};
+
+            this.setState({
+                boardData: updatedData,
+                mineCount: minesLeft
+            });
         }
     }
 
