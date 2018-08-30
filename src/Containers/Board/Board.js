@@ -18,11 +18,14 @@ class board extends PureComponent {
         this.tileClickedHandler = this.tileClickedHandler.bind(this);
         this.renderBoard = this.renderBoard.bind(this);
         this.revealEmpty = this.revealEmpty.bind(this);
+        this.checkIfWin = this.checkIfWin.bind(this);
     }
     state = {
         mineCount: this.props.mines,
         gameStatus: "make your first move",
-        boardData: this.initializeBoard(this.props.height, this.props.width, this.props.mines)
+        boardData: this.initializeBoard(this.props.height, this.props.width, this.props.mines),
+        minesArray: null,
+        flagsArray: null,
     }
 
 
@@ -97,10 +100,18 @@ class board extends PureComponent {
             yPosition = Math.floor(Math.random() * (width - init)) + init;
 
             if (!(tilesArr[xPosition][yPosition].containsMine)) {
+
+                //If no mine at x,y plant one
                 tilesArr[xPosition][yPosition].containsMine = true;
                 minesPlanted++;
+
             }
         }
+
+        /*
+            Tried to create an array that holds every mine's position to store it inside state, but I got this warning
+            Can't call setState on a component that is not yet mounted. Maybe there's a lifecycle hook to call that fixes this
+        */
         return (tilesArr);
     }
 
@@ -173,14 +184,22 @@ class board extends PureComponent {
 
     // Method that reveals the content of every tile on the board and updates the state with new boardData. Called when Game over or winning. 
     revealBoardContent = () => {
+
         //Create a new array from the currentBoardData from state
         const updatedData = [...this.state.boardData];
-        //Update every tile isRevealedProperty to true
+
+        //Update every tile isRevealedProperty  to true and flagged to false
         updatedData.forEach((datarow) => {
-            datarow.forEach((dataitem) => {
-                dataitem.isRevealed = true;
+
+            datarow.forEach((dataItem) => {
+
+                dataItem.isRevealed = true;
+                dataItem.isFlagged = false;
+
             });
+
         });
+
         this.setState({
             boardData: updatedData
         })
@@ -220,25 +239,74 @@ class board extends PureComponent {
         return board;
     }
 
-    //Check game progress 
-    // TODO
-    // gameProgress() {
-    //     if (minesLeft === 0) {
+    //Iterates over the board and places each mine's position inside an array. 
+    getMines(board) {
+        /*
+            Not the best solution. Have yet to find a solution to get where mines are planted at and updating state inside populateBoard()
+            So far, when i try to do that I get a warning Can't call setState on a component that is not yet mounted.Im not still  fully 
+            understanding compoment lifecycle. I dont like this permanent iteration on each play. 
+        */
 
-    //         const mineArray = this.getMines(updatedData);
+        let minesAt = [];
 
-    //         const FlagArray = this.getFlags(updatedData);
+        board.forEach((row, rowIndex) => {
+            row.forEach((_, colIndex) => {
+                if (board[rowIndex][colIndex].containsMine) {
+                    minesAt.push([rowIndex, colIndex]);
+                    console.log(`mina en ${rowIndex}, ${colIndex}`)
+                }
+            });
+        });
+        console.log(minesAt);
+        return minesAt;
+    }
 
-    //         if (JSON.stringify(mineArray) === JSON.stringify(FlagArray)) {
+    //Iterates over the board and places each flag inside an array. 
+    getFlags(board) {
+        /*
+            If tiles properties implemented with enum, getMines() and getFlags() could be somehow be joined into a single method. 
+        */
+        let flagsAt = [];
+        board.forEach((row, rowIndex) => {
+            row.forEach((_, colIndex) => {
+                if (board[rowIndex][colIndex].isFlagged) {
+                    flagsAt.push([rowIndex, colIndex]);
+                    console.log(`Flag en ${rowIndex}, ${colIndex}`)
+                }
+            });
+        });
+        console.log(flagsAt);
+        return flagsAt;
+    }
 
-    //             this.revealBoard();
+    //Check game progress and returns a boolean: true if win, false if not.  
+    checkIfWin() {
 
-    //             alert("You Win");
+        //No need to create a new array, Ill just reference the one inside state
+        const data = this.state.boardData;
+        const minesLeft = this.state.mineCount;
 
-    //         }
+        //If  flagged as many tiles as mines were initially
+        if (minesLeft === 0) {
 
-    //     }
-    // }
+            //get mines as an array of positions
+            const mineArray = this.getMines(data);
+
+            //get flags as array of positions
+            const flagArray = this.getFlags(data);
+
+            if (JSON.stringify(mineArray) === JSON.stringify(flagArray)) {
+
+                //if both arrays are equal, game is won
+                return true;
+            }
+
+        } else {
+
+            //if more than 0 mines are left return false
+            return false;
+        }
+    }
 
     ////////////////////////////////////////////////// Handler methods
     /*
@@ -252,34 +320,67 @@ class board extends PureComponent {
         const clickedTile = { ...this.state.boardData[x][y] };
 
         //Check if clicked tile has not been revealed or flagged yet, if revealed do nothing. 
-        if (!clickedTile.isRevealed && !clickedTile.isFlagged) {
+        if (!clickedTile.isRevealed && !clickedTile.isFlagged && !(this.state.gameStatus === "YOU WON!")) {
+
             //If not revealed yet, check for mines
             if (clickedTile.containsMine) {
+
                 //If contains mine, player looses, game status is updated and board content revealed
                 alert("There is a mine, you explode! and lose btw");
+
                 this.setState({
                     gameStatus: "GAME OVER"
                 });
+
                 this.revealBoardContent();
+
             } else {
+
+                // Variable to update gameStatus
+                let status = "Not yet loosing"
+
                 //If is not revealed nor flagged nor contains mine... is it empty?
                 if (clickedTile.isEmpty) {
+
                     //if empty, reveal and behave as if user clicked on every surrounding tile
                     const currentBoard = [...this.state.boardData];
                     const updatedData = [...this.revealEmpty(x, y, currentBoard)];
+
+                    //Check for current game progress
+                    if (this.checkIfWin()) {
+
+                        //if true, user won the game. Update status 
+                        status = "YOU WON!"
+                    }
+
+
                     this.setState({
-                        boardData: updatedData
+                        boardData: updatedData,
+                        gameStatus: status
                     });
+
                 } else {
+
                     // If clickedTile !empty, show neighbours, update state
                     clickedTile.isRevealed = true;
+
                     //Create a new array of boardData to update the position of the revealed tile
                     const updatedBoardData = [...this.state.boardData];
+
                     // Assign the position of the revealed tile in the new array to the updated tile
                     updatedBoardData[x][y] = { ...clickedTile };
+
+                    //Check for current game progress
+                    if (this.checkIfWin()) {
+
+                        //if true, user won the game. Update status 
+                        status = "YOU WON!"
+                    }
+
                     // Update state with updated board
                     this.setState({
-                        boardData: updatedBoardData
+                        boardData: updatedBoardData,
+                        gameStatus: status
                     });
 
                 }
@@ -292,40 +393,57 @@ class board extends PureComponent {
     // board state with flagged/unflagged tiles
     rightClickHandler(event, x, y) {
         event.preventDefault();  // prevents default behaviour such as right click
-        const clickedTile = {...this.state.boardData[x][y]}
-        //ommit if revealed
-        if (!clickedTile.isRevealed){
+        const clickedTile = { ...this.state.boardData[x][y] }
+         
+        //Current status of the game, will help to determine if a player wins
+         let status = this.state.gameStatus;
+        
+         //ommit if revealed and if  game is ended
+        if (!clickedTile.isRevealed && !(this.state.gameStatus === "YOU WON!")) {
 
             let minesLeft = this.state.mineCount;
 
             //if not revealed it can be flagged or not
-            if (clickedTile.isFlagged){
+            if (clickedTile.isFlagged) {
 
                 //if flagged, unflag it
-                clickedTile.isFlagged= false;
+                clickedTile.isFlagged = false;
                 minesLeft++;
-            } else{
+            } else {
 
                 //if not flagged, flag it
                 clickedTile.isFlagged = true;
                 minesLeft--;
             }
-            
-            //Update the state with new tile
+
+            //Update the state with new tile and check game status
             const updatedData = [...this.state.boardData];
-            updatedData[x][y] = {...clickedTile};
+            updatedData[x][y] = { ...clickedTile };
 
             this.setState({
                 boardData: updatedData,
-                mineCount: minesLeft
+                mineCount: minesLeft,
             });
         }
+
+        // check for current game progress. Did not find a suitable solution to update state immediately so I can call checkIfWin after flagging
+        // a tile. Tried a functional setState() didnt work, nor did a normal call to setState with an object. 
+        // TO-DO 
+
     }
 
     render() {
         const board = this.renderBoard(this.state.boardData);
         return (
             <div className={classes.board}>
+                <div className={classes.gameInfo}>
+                    <h1>
+                        {this.state.gameStatus}
+                    </h1>
+                    <span className={classes.info}>
+                        Mines remaining: {this.state.mineCount}
+                    </span>
+                </div>
                 {board}
             </div>
         );
@@ -339,3 +457,11 @@ board.propTypes = {
     width: PropTypes.number
 
 }
+/* 
+    TO-DOS
+    Enable some way of strict typeing to enum gameStatus and tile properties (Maybe typescript)
+    Once strict typeing is available, merge findTiles() and findMines() into a single method. 
+    Find a way to avoid calling to findTiles() and findMines(), setting this values inside the state once the board is populated with mines and
+when the user flag tiles, respectively
+
+*/
