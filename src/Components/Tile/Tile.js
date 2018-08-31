@@ -57,18 +57,12 @@ function getContent(props, content) {
         } else {
 
             //if it does not contain mine, show neighbours or empty
-            props.neighbour !== 0 ?
-                content = props.neighbour
-                :
-                null;
+            props.neighbour !== 0 ? content = props.neighbour : null;
         }
     } else {
 
         //if not yet revealed, it can be flagged
-        props.isFlagged ?
-            content = "F"
-            :
-            null;
+        props.isFlagged ? content = "F" : null;
     }
     return content;
 }

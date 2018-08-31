@@ -253,11 +253,9 @@ class board extends PureComponent {
             row.forEach((_, colIndex) => {
                 if (board[rowIndex][colIndex].containsMine) {
                     minesAt.push([rowIndex, colIndex]);
-                    console.log(`mina en ${rowIndex}, ${colIndex}`)
                 }
             });
         });
-        console.log(minesAt);
         return minesAt;
     }
 
@@ -271,11 +269,9 @@ class board extends PureComponent {
             row.forEach((_, colIndex) => {
                 if (board[rowIndex][colIndex].isFlagged) {
                     flagsAt.push([rowIndex, colIndex]);
-                    console.log(`Flag en ${rowIndex}, ${colIndex}`)
                 }
             });
         });
-        console.log(flagsAt);
         return flagsAt;
     }
 
@@ -297,8 +293,10 @@ class board extends PureComponent {
 
             if (JSON.stringify(mineArray) === JSON.stringify(flagArray)) {
 
-                //if both arrays are equal, game is won
-                return true;
+                //if both arrays are equal, game is won. Update gameStatus
+                this.setState({
+                    gameStatus: "YOU WON!"
+                });
             }
 
         } else {
@@ -308,7 +306,7 @@ class board extends PureComponent {
         }
     }
 
-    ////////////////////////////////////////////////// Handler methods
+    //////////////////////////////////////////////////  methods
     /*
         handles tile click. Accepts 2D[x][y] indexes to reveal the tile that was clicked. This reveal will be done according to the content
         of the mine which can be a bomb, or not. If not a bomb and it is not empty, it shows the number of neighbouring tiles containing 
@@ -346,14 +344,6 @@ class board extends PureComponent {
                     const currentBoard = [...this.state.boardData];
                     const updatedData = [...this.revealEmpty(x, y, currentBoard)];
 
-                    //Check for current game progress
-                    if (this.checkIfWin()) {
-
-                        //if true, user won the game. Update status 
-                        status = "YOU WON!"
-                    }
-
-
                     this.setState({
                         boardData: updatedData,
                         gameStatus: status
@@ -369,13 +359,6 @@ class board extends PureComponent {
 
                     // Assign the position of the revealed tile in the new array to the updated tile
                     updatedBoardData[x][y] = { ...clickedTile };
-
-                    //Check for current game progress
-                    if (this.checkIfWin()) {
-
-                        //if true, user won the game. Update status 
-                        status = "YOU WON!"
-                    }
 
                     // Update state with updated board
                     this.setState({
@@ -394,9 +377,6 @@ class board extends PureComponent {
     rightClickHandler(event, x, y) {
         event.preventDefault();  // prevents default behaviour such as right click
         const clickedTile = { ...this.state.boardData[x][y] }
-         
-        //Current status of the game, will help to determine if a player wins
-         let status = this.state.gameStatus;
         
          //ommit if revealed and if  game is ended
         if (!clickedTile.isRevealed && !(this.state.gameStatus === "YOU WON!")) {
@@ -420,15 +400,30 @@ class board extends PureComponent {
             const updatedData = [...this.state.boardData];
             updatedData[x][y] = { ...clickedTile };
 
-            this.setState({
-                boardData: updatedData,
-                mineCount: minesLeft,
-            });
+            // Update state with new information 
+
+            if(minesLeft === 0){
+
+                //If user flagged possible last tile containing a mine, check if won with a setState callback to checkIfWin()
+                this.setState(
+                    {
+                    boardData: updatedData,
+                    mineCount: minesLeft,
+                    }, 
+                    () => {
+                        this.checkIfWin(this.state.mineCount)
+                    });
+            } else {
+
+                //If remaining mines !== 0 update only boardData and minesLeft counter
+                this.setState({
+                    boardData: updatedData,
+                    mineCount: minesLeft
+                })
+            }
+            
         }
 
-        // check for current game progress. Did not find a suitable solution to update state immediately so I can call checkIfWin after flagging
-        // a tile. Tried a functional setState() didnt work, nor did a normal call to setState with an object. 
-        // TO-DO 
 
     }
 
