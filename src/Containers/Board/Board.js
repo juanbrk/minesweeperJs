@@ -299,11 +299,7 @@ class board extends PureComponent {
                 });
             }
 
-        } else {
-
-            //if more than 0 mines are left return false
-            return false;
-        }
+        } 
     }
 
     //////////////////////////////////////////////////  methods
@@ -377,8 +373,8 @@ class board extends PureComponent {
     rightClickHandler(event, x, y) {
         event.preventDefault();  // prevents default behaviour such as right click
         const clickedTile = { ...this.state.boardData[x][y] }
-        
-         //ommit if revealed and if  game is ended
+
+        //ommit if revealed and if  game is ended
         if (!clickedTile.isRevealed && !(this.state.gameStatus === "YOU WON!")) {
 
             let minesLeft = this.state.mineCount;
@@ -402,14 +398,14 @@ class board extends PureComponent {
 
             // Update state with new information 
 
-            if(minesLeft === 0){
+            if (minesLeft === 0) {
 
                 //If user flagged possible last tile containing a mine, check if won with a setState callback to checkIfWin()
                 this.setState(
                     {
-                    boardData: updatedData,
-                    mineCount: minesLeft,
-                    }, 
+                        boardData: updatedData,
+                        mineCount: minesLeft,
+                    },
                     () => {
                         this.checkIfWin(this.state.mineCount)
                     });
@@ -421,7 +417,7 @@ class board extends PureComponent {
                     mineCount: minesLeft
                 })
             }
-            
+
         }
 
 

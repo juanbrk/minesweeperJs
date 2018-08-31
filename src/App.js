@@ -13,7 +13,7 @@ class App extends Component {
         <Board
           height={8}
           width={8}
-          mines={8}
+          mines={4}
         />
       </div>
     );
