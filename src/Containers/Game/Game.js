@@ -19,7 +19,8 @@ class game extends PureComponent {
         this.populateBoardWithMines = this.populateBoardWithMines.bind(this);
         this.restartClickHandler = this.restartClickHandler.bind(this);
         this.changeDifficulty = this.changeDifficulty.bind(this);
-        this.tileClickedHandler = this.tileClickedHandler.bind(this)
+        this.tileClickedHandler = this.tileClickedHandler.bind(this);
+        this.rightClickHandler = this.rightClickHandler.bind(this);
 
     }
 
@@ -234,7 +235,7 @@ class game extends PureComponent {
 
                 //if both arrays are equal, game is won. Update gameStatus
                 this.setState({
-                    gameStatus: "YOU WON!"
+                    gameStatus: gameStatuses.won,
                 });
             }
 
@@ -418,9 +419,58 @@ class game extends PureComponent {
             });
     }
 
-    //Method that handles changes in board status and passes it as a prop to <Board> . This is result of lifting state up from Board to Game
-    // DONT THINK ACTUALLY NEED THIS. 
-    handleBoardChange() {
+     // handles right clicks to flag or unflag a tile. Updates the counter of remaining mines and the 
+    // board state with flagged/unflagged tiles
+    rightClickHandler(event, x, y) {
+        event.preventDefault();  // prevents default behaviour such as right click
+        const clickedTile = { ...this.state.boardData[x][y] }
+
+        //ommit if revealed and if  game is ended
+        if (!clickedTile.isRevealed && !(this.state.gameStatus === gameStatuses.won)) {
+
+            let minesLeft = this.state.mineCount;
+
+            //if not revealed it can be flagged or not
+            if (clickedTile.isFlagged) {
+
+                //if flagged, unflag it
+                clickedTile.isFlagged = false;
+                minesLeft++;
+            } else {
+
+                //if not flagged, flag it
+                clickedTile.isFlagged = true;
+                minesLeft--;
+            }
+
+            //Update the state with new tile and check game status
+            const updatedData = [...this.state.boardData];
+            updatedData[x][y] = { ...clickedTile };
+
+            // Update state with new information 
+
+            if (minesLeft === 0) {
+
+                //If user flagged possible last tile containing a mine, check if won with a setState callback to checkIfWin()
+                this.setState(
+                    {
+                        boardData: updatedData,
+                        mineCount: minesLeft,
+                    },
+                    () => {
+                        this.checkIfWin(this.state.mineCount)
+                    });
+            } else {
+
+                //If remaining mines !== 0 update only boardData and minesLeft counter
+                this.setState({
+                    boardData: updatedData,
+                    mineCount: minesLeft
+                })
+            }
+
+        }
+
 
     }
 
@@ -451,6 +501,7 @@ class game extends PureComponent {
                     gameStatus={this.state.gameStatus}
                     onStatusChange={(e) => this.handleStatusChange(e)}
                     tileClicked={this.tileClickedHandler}
+                    tileFlagged ={this.rightClickHandler}
                 />
             </div>
         );

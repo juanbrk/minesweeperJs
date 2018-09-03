@@ -48,67 +48,14 @@ class board extends PureComponent {
                     isRevealed={dataRowTile.isRevealed}
                     isFlagged={dataRowTile.isFlagged}
                     neighbour={dataRowTile.neighbour}
-                    cMenu={(event) => this.rightClickHandler(event, rowIndex, colIndex)} />
+                    cMenu={(e) => this.props.tileFlagged(e, rowIndex, colIndex)} />
             );
         });
     }
     ////////////////////////////////////////////////// handler methods
     
 
-    // handles right clicks to flag or unflag a tile. Updates the counter of remaining mines and the 
-    // board state with flagged/unflagged tiles
-    rightClickHandler(event, x, y) {
-        event.preventDefault();  // prevents default behaviour such as right click
-        const clickedTile = { ...this.state.boardData[x][y] }
-
-        //ommit if revealed and if  game is ended
-        if (!clickedTile.isRevealed && !(this.state.gameStatus === "YOU WON!")) {
-
-            let minesLeft = this.state.mineCount;
-
-            //if not revealed it can be flagged or not
-            if (clickedTile.isFlagged) {
-
-                //if flagged, unflag it
-                clickedTile.isFlagged = false;
-                minesLeft++;
-            } else {
-
-                //if not flagged, flag it
-                clickedTile.isFlagged = true;
-                minesLeft--;
-            }
-
-            //Update the state with new tile and check game status
-            const updatedData = [...this.state.boardData];
-            updatedData[x][y] = { ...clickedTile };
-
-            // Update state with new information 
-
-            if (minesLeft === 0) {
-
-                //If user flagged possible last tile containing a mine, check if won with a setState callback to checkIfWin()
-                this.setState(
-                    {
-                        boardData: updatedData,
-                        mineCount: minesLeft,
-                    },
-                    () => {
-                        this.checkIfWin(this.state.mineCount)
-                    });
-            } else {
-
-                //If remaining mines !== 0 update only boardData and minesLeft counter
-                this.setState({
-                    boardData: updatedData,
-                    mineCount: minesLeft
-                })
-            }
-
-        }
-
-
-    }
+   
 
     // method that handles change in board prop passed from <Game>. This is a result of lifting state upt from <Board> to <Game>
     // DONT THINK I ACTUALLY NEED THIS
