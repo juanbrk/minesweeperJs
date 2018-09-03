@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import './App.css';
 import Game from './Containers/Game/Game';
-
+import Layout from './Components/Layout/Layout';
 class App extends Component {
 
   render() {
     return (
       <div className={"App"}>
-        <Game />
+        <Layout>
+          <Game />
+        </Layout>
       </div>
 
 

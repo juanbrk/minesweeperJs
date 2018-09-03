@@ -3,7 +3,7 @@ import Board from '../Board/Board';
 import classes from './Game.css';
 import Menu from '../../Components/Menu/Menu';
 
-const gameStatuses = {
+const GAMESTATUSES = {
     notInitialized: "Make your first move",
     inProgress: "Not yet loosing",
     won: "YOU WON!",
@@ -28,7 +28,7 @@ class game extends PureComponent {
         mineCount: null,
         height: null,
         width: null,
-        gameStatus: gameStatuses.notInitialized,
+        gameStatus: GAMESTATUSES.notInitialized,
         //Will be selected from the dropDown menu
         difficulty: null,
         //Will be rendered once the difficulty has been selected 
@@ -50,10 +50,10 @@ class game extends PureComponent {
             const populatedBoardWithNeighbours = this.populateTilesWithNeighbours(populatedBoardWithMines, height, width);
 
             //Update state with new values
-            this.setState({ 
+            this.setState({
                 boardData: populatedBoardWithNeighbours,
-                gameStatus:gameStatuses.notInitialized,
-             });
+                gameStatus: GAMESTATUSES.notInitialized,
+            });
 
         } else {
             //If this.state.difficulty === null
@@ -121,7 +121,7 @@ class game extends PureComponent {
             for (let j = 0; j < width; j++) {
                 //Had to check for !data[i][j] === undefined because it was throwing neighbouringTile is Undefined error even though when 
                 // debugging everything seems fine and every neighbouringTile has data in it. 
-                if (!updatedData[i][j].containsMine ) {
+                if (!updatedData[i][j].containsMine) {
                     let mine = 0;
                     const neighbours = this.traverseBoard(updatedData[i][j].rowIndex, updatedData[i][j].colIndex, updatedData);
                     //Replaced .map() method with a forEach() below
@@ -135,7 +135,7 @@ class game extends PureComponent {
                     if (mine !== 0) {
                         updatedData[i][j].neighbour = mine;
                         updatedData[i][j].isEmpty = false;
-                        
+
                     }
                 }
             }
@@ -237,7 +237,7 @@ class game extends PureComponent {
 
                 //if both arrays are equal, game is won. Update gameStatus
                 this.setState({
-                    gameStatus: gameStatuses.won,
+                    gameStatus: GAMESTATUSES.won,
                 });
             }
 
@@ -262,7 +262,7 @@ class game extends PureComponent {
 
         });
 
-        this.setState({boardData: updatedData});
+        this.setState({ boardData: updatedData });
     }
 
     // Method that uses recursion and a stack (flood fill maybe?) to reveal all empty || !containsMine and returns the updated board
@@ -315,7 +315,7 @@ class game extends PureComponent {
         const clickedTile = { ...this.state.boardData[x][y] };
 
         //Check if clicked tile has not been revealed or flagged yet, if revealed do nothing. 
-        if (!clickedTile.isRevealed && !clickedTile.isFlagged && !(this.state.gameStatus === gameStatuses.won )) {
+        if (!clickedTile.isRevealed && !clickedTile.isFlagged && !(this.state.gameStatus === GAMESTATUSES.won)) {
 
             //If not revealed yet, check for mines
             if (clickedTile.containsMine) {
@@ -324,7 +324,7 @@ class game extends PureComponent {
                 alert("There is a mine, you explode! and lose btw");
 
                 this.setState({
-                    gameStatus: gameStatuses.lost,
+                    gameStatus: GAMESTATUSES.lost,
                 });
 
                 this.revealBoardContent();
@@ -332,7 +332,7 @@ class game extends PureComponent {
             } else {
 
                 // Variable to update gameStatus
-                let status = gameStatuses.inProgress
+                let status = GAMESTATUSES.inProgress
 
                 //If is not revealed nor flagged nor contains mine... is it empty?
                 if (clickedTile.isEmpty) {
@@ -373,7 +373,7 @@ class game extends PureComponent {
         const newData = this.initializeBoard(this.state.height, this.state.width, this.state.mineCount);
         this.setState({
             board: newData,
-            gameStatus: gameStatuses.notInitialized,
+            gameStatus: GAMESTATUSES.notInitialized,
         });
 
     }
@@ -421,14 +421,14 @@ class game extends PureComponent {
             });
     }
 
-     // handles right clicks to flag or unflag a tile. Updates the counter of remaining mines and the 
+    // handles right clicks to flag or unflag a tile. Updates the counter of remaining mines and the 
     // board state with flagged/unflagged tiles
     rightClickHandler(event, x, y) {
         event.preventDefault();  // prevents default behaviour such as right click
         const clickedTile = { ...this.state.boardData[x][y] }
 
         //ommit if revealed and if  game is ended
-        if (!clickedTile.isRevealed && !(this.state.gameStatus === gameStatuses.won)) {
+        if (!clickedTile.isRevealed && !(this.state.gameStatus === GAMESTATUSES.won)) {
 
             let minesLeft = this.state.mineCount;
 
@@ -479,7 +479,6 @@ class game extends PureComponent {
     //Method to handle status change of the game when clicking tiles from Board.
     handleStatusChange(newStatus) {
         this.setState({ gameStatus: newStatus });
-
     }
 
     render() {
@@ -503,7 +502,7 @@ class game extends PureComponent {
                     gameStatus={this.state.gameStatus}
                     onStatusChange={(e) => this.handleStatusChange(e)}
                     tileClicked={this.tileClickedHandler}
-                    tileFlagged ={this.rightClickHandler}
+                    tileFlagged={this.rightClickHandler}
                 />
             </div>
         );
