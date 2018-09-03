@@ -1,21 +1,28 @@
 import React, { Component } from 'react';
 import './App.css';
-import Board from './Containers/Board/Board';
+import Game from './Containers/Game/Game';
 
+const options = [
+  {
+    beginner: "easy",
+    advanced: "medium",
+    expert: "difficult",
+  }
+];
 class App extends Component {
+
   render() {
-    //DEBUG PURPOSE ONLY ZONE
-
-    //DEBUG PURPOSE ONLY ZONE
-
     return (
-      <div className="App">
-        <Board
+      <div className={"App"}>
+        <Game
           height={8}
           width={8}
-          mines={4}
+          mines={14}
+          difficulty={"medium"}
         />
       </div>
+
+
     );
   }
 }

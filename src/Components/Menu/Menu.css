@@ -1,0 +1,33 @@
+.menu{
+    height:33px;
+    width: 80%;
+    line-height:33px;
+    margin:10px 20px 10px 20px;
+    padding:10px 20px 10px 20px;
+}
+
+.restart {
+    float:left;
+    padding:8px 15px;
+    margin: 5px 5px 5px 5px;
+    background-color:gray;
+    border:none;
+    border-radius:5px;
+    color:#fff;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer
+   }
+
+   .mineCount {
+    margin:5px 5px 5px 5px;
+    font-size: 16px;
+    text-align: center;
+    font-weight: 500;
+   }
+
+   .dropdownSelect {
+       
+   }
+
+

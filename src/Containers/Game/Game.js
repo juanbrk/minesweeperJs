@@ -1,23 +1,472 @@
 import React, { PureComponent } from 'react';
 import Board from '../Board/Board';
 import PropTypes from 'prop-types';
+import classes from './Game.css';
+import Menu from '../../Components/Menu/Menu';
+
+const gameStatuses = {
+    notInitialized: "Make your first move",
+    inProgress: "Not yet loosing",
+    won: "YOU WON!",
+    lost: "GAME OVER",
+}
 
 
-// class game extends PureComponen{
-//     constructor(props){
-//         super(props);
-        
-//         render(){
-//             return ();
+class game extends PureComponent {
+    constructor(props) {
+        super(props);
+        this.initializeBoard = this.initializeBoard.bind(this);
+        this.populateBoardWithMines = this.populateBoardWithMines.bind(this);
+        this.restartClickHandler = this.restartClickHandler.bind(this);
+        this.changeDifficulty = this.changeDifficulty.bind(this);
+        this.tileClickedHandler = this.tileClickedHandler.bind(this)
 
-//         }
+    }
 
-//     }
+    state = {
+        //Will be set when the board is initialized
+        mineCount: null,
+        height: null,
+        width: null,
+        gameStatus: gameStatuses.notInitialized,
+        //Will be selected from the dropDown menu
+        difficulty: null,
+        //Will be rendered once the difficulty has been selected 
+        boardData: null,
+    }
 
-// };
+    // Method that creates a board according to the difficulty selected by the user. Will be passed down to Board as a prop.
+    // mineCount, height and width will be set inside this method. If not difficulty has been chosen yet, it will return null
+    initializeBoard() {
 
-// export default game;
+        //Board will be rendered if difficulty has been selected, if not, it wont 
+        if (this.state.difficulty !== null) {
+            let height = this.state.height;
+            let width = this.state.width;
+            let mines = this.state.mineCount;
+            //Render board 
+            const emptyTiles = this.createEmptyArray(height, width);
+            const populatedBoardWithMines = this.populateBoardWithMines(emptyTiles, height, width, mines);
+            const populatedBoardWithNeighbours = this.populateTilesWithNeighbours(populatedBoardWithMines, height, width);
 
-// game.propTypes = {
+            //Update state with new values
+            this.setState({ 
+                boardData: populatedBoardWithNeighbours,
+                gameStatus:gameStatuses.notInitialized,
+             });
 
-// }
+        } else {
+            //If this.state.difficulty === null
+            return null;
+        }
+    }
+
+    //Creates a 2D array with empty "tiles" objects in it. Every tile will have its .isEmpty property set to true They will be loaded with info later. 
+    createEmptyArray(height, width) {
+        let emptyTilesArr = [];
+        for (let i = 0; i < height; i++) {
+            emptyTilesArr.push([]);
+            for (let j = 0; j < width; j++) {
+                emptyTilesArr[i][j] = {
+                    containsMine: false,
+                    neighbour: 0,
+                    isRevealed: false,
+                    isEmpty: true,
+                    isFlagged: false,
+                    rowIndex: i,
+                    colIndex: j
+                };
+            }
+        }
+        return emptyTilesArr;
+    }
+
+    // Populates board with as many mines as were passed as props. Every tile that will hold a mine will have its .containsMine set to true
+    // and its .isEmpty property set to false
+    populateBoardWithMines(tilesArr, height, width, mines) {
+        let xPosition = 0, yPosition = 0, minesPlanted = 0, init = 0;
+
+        while (minesPlanted < mines) {
+            //generate random inclusive number with perfectly even distribution among widht and height
+            xPosition = Math.floor(Math.random() * (height - init)) + init;
+            yPosition = Math.floor(Math.random() * (width - init)) + init;
+
+            if (!(tilesArr[xPosition][yPosition].containsMine)) {
+
+                //If no mine at x,y plant one
+                tilesArr[xPosition][yPosition].containsMine = true;
+                tilesArr[xPosition][yPosition].isEmpty = false;
+                minesPlanted++;
+
+            }
+        }
+
+        /*
+            Tried to create an array that holds every mine's position to store it inside state, but I got this warning
+            Can't call setState on a component that is not yet mounted. Maybe there's a lifecycle hook to call that fixes this
+        */
+        return (tilesArr);
+    }
+
+    // Method that gets the amount of mines that a tile's neighbours have and returns a new (updated) array
+    // with information on every tile and its neighbouring tiles.  
+    populateTilesWithNeighbours(data, height, width) {
+
+        //Create a new copy of the original array to avoid reference issues
+        let updatedData = [...data];
+
+        //We get the neighbours of the tile and then check how many of them have mines
+        for (let i = 0; i < height; i++) {
+            for (let j = 0; j < width; j++) {
+                //Had to check for !data[i][j] === undefined because it was throwing neighbouringTile is Undefined error even though when 
+                // debugging everything seems fine and every neighbouringTile has data in it. 
+                if (!updatedData[i][j].containsMine ) {
+                    let mine = 0;
+                    const neighbours = this.traverseBoard(updatedData[i][j].rowIndex, updatedData[i][j].colIndex, updatedData);
+                    //Replaced .map() method with a forEach() below
+                    neighbours.forEach(neighbouringTile => {
+                        console.log(neighbouringTile);
+                        if (neighbouringTile.containsMine) {
+                            mine++;
+                        }
+                    });
+                    // If no neighbour has mines, then continues being empty. If some neighbour contains mine, thats the number that this tile will store
+                    if (mine !== 0) {
+                        updatedData[i][j].neighbour = mine;
+                    }
+                }
+            }
+        }
+        return (updatedData);
+    }
+
+    // looks for neighbouring tiles taking into account index restrictions and returns them as an array of tiles
+    traverseBoard(row, col, data) {
+        const el = [];
+        //up
+        if (row > 0) {
+            el.push(data[row - 1][col]);
+        }
+        //down
+        if (row < this.state.height - 1) {
+            el.push(data[row + 1][col]);
+        }
+        //left
+        if (col > 0) {
+            el.push(data[row][col - 1]);
+        }
+        //right
+        if (col < this.state.width - 1) {
+            el.push(data[row][col + 1]);
+        }
+        // top left
+        if (row > 0 && col > 0) {
+            el.push(data[row - 1][col - 1]);
+        }
+        // top right
+        if (row > 0 && col < this.state.width - 1) {
+            el.push(data[row - 1][col + 1]);
+        }
+        // bottom right
+        if (row < this.state.height - 1 && col < this.state.width - 1) {
+            el.push(data[row + 1][col + 1]);
+        }
+        // bottom left
+        if (row < this.state.height - 1 && col > 0) {
+            el.push(data[row + 1][col - 1]);
+        }
+        return el;
+    }
+
+    //Iterates over the board and places each mine's position inside an array. 
+    getMines(board) {
+        /*
+            Not the best solution. Have yet to find a solution to get where mines are planted at and updating state inside populateBoard()
+            So far, when i try to do that I get a warning Can't call setState on a component that is not yet mounted.Im not still  fully 
+            understanding compoment lifecycle. I dont like this permanent iteration on each play. 
+        */
+
+        let minesAt = [];
+
+        board.forEach((row, rowIndex) => {
+            row.forEach((_, colIndex) => {
+                if (board[rowIndex][colIndex].containsMine) {
+                    minesAt.push([rowIndex, colIndex]);
+                }
+            });
+        });
+        return minesAt;
+    }
+
+    //Iterates over the board and places each flag inside an array. 
+    getFlags(board) {
+        /*
+            If tiles properties implemented with enum, getMines() and getFlags() could be somehow be joined into a single method. 
+        */
+        let flagsAt = [];
+        board.forEach((row, rowIndex) => {
+            row.forEach((_, colIndex) => {
+                if (board[rowIndex][colIndex].isFlagged) {
+                    flagsAt.push([rowIndex, colIndex]);
+                }
+            });
+        });
+        return flagsAt;
+    }
+
+    //Check game progress and returns a boolean: true if win, false if not.  
+    checkIfWin() {
+
+        //No need to create a new array, Ill just reference the one inside state
+        const data = this.state.boardData;
+        const minesLeft = this.state.mineCount;
+
+        //If  flagged as many tiles as mines were initially
+        if (minesLeft === 0) {
+
+            //get mines as an array of positions
+            const mineArray = this.getMines(data);
+
+            //get flags as array of positions
+            const flagArray = this.getFlags(data);
+
+            if (JSON.stringify(mineArray) === JSON.stringify(flagArray)) {
+
+                //if both arrays are equal, game is won. Update gameStatus
+                this.setState({
+                    gameStatus: "YOU WON!"
+                });
+            }
+
+        }
+    }
+
+    // Method that reveals the content of every tile on the board and updates the state with new boardData. Called when Game over or winning. 
+    revealBoardContent = () => {
+
+        //Create a new array from the currentBoardData from state
+        const updatedData = [...this.state.boardData];
+
+        //Update every tile isRevealedProperty  to true and flagged to false
+        updatedData.forEach((datarow) => {
+
+            datarow.forEach((dataItem) => {
+
+                dataItem.isRevealed = true;
+                dataItem.isFlagged = false;
+
+            });
+
+        });
+
+        this.setState({boardData: updatedData});
+    }
+
+    // Method that uses recursion and a stack (flood fill maybe?) to reveal all empty || !containsMine and returns the updated board
+    revealEmpty = (xPosition, yPosition, board) => {
+
+        //reveal clicked and empty tile that called upon this method
+        board[xPosition][yPosition].isRevealed = true;
+
+        // Behave as if user had clicked on every surrounding tiles
+        // Get all the neighbouring tiles
+        let neighbours = this.traverseBoard(xPosition, yPosition, board);
+
+        // for every surrounding tile, repeat the process
+        neighbours.forEach(neighbouringTile => {
+            //Once visited, it is going to be revealed, since this is a neighbour of an empty tile, it does not contain mine. 
+
+            //Check if empty. If flagged or already revealed it, ommit it
+            if (!neighbouringTile.isFlagged && !neighbouringTile.isRevealed && !neighbouringTile.containsMine) {
+
+                //vacia o vecino
+                // Check if not empty
+                if (!neighbouringTile.isEmpty) {
+
+                    //if not empty, reveal it
+                    board[neighbouringTile.rowIndex][neighbouringTile.colIndex].isRevealed = true;
+                } else {
+                    // if empty, recursion
+                    this.revealEmpty(neighbouringTile.rowIndex, neighbouringTile.colIndex, board);
+                }
+            }
+        });
+
+        //Update board before 
+        return board;
+    }
+
+
+
+
+    //---------------------------------------------------- Handler methods
+
+    /*
+        handles tile click. Accepts 2D[x][y] indexes to reveal the tile that was clicked. This reveal will be done according to the content
+        of the mine which can be a bomb, or not. If not a bomb and it is not empty, it shows the number of neighbouring tiles containing 
+        mines. If not a bomb and empty, it starts a recursive function to reveal all empty neighbouring tiles and its neighbouring tiles
+        containing mines
+     */
+    tileClickedHandler = (x, y) => {
+        //Obtain the clicked object, this will allow us to update state in a immutable way later
+        const clickedTile = { ...this.state.boardData[x][y] };
+
+        //Check if clicked tile has not been revealed or flagged yet, if revealed do nothing. 
+        if (!clickedTile.isRevealed && !clickedTile.isFlagged && !(this.state.gameStatus === gameStatuses.won )) {
+
+            //If not revealed yet, check for mines
+            if (clickedTile.containsMine) {
+
+                //If contains mine, player looses, game status is updated and board content revealed
+                alert("There is a mine, you explode! and lose btw");
+
+                this.setState({
+                    gameStatus: gameStatuses.lost,
+                });
+
+                this.revealBoardContent();
+
+            } else {
+
+                // Variable to update gameStatus
+                let status = gameStatuses.inProgress
+
+                //If is not revealed nor flagged nor contains mine... is it empty?
+                if (clickedTile.isEmpty) {
+
+                    //if empty, reveal and behave as if user clicked on every surrounding tile
+                    const currentBoard = [...this.state.boardData];
+                    const updatedData = [...this.revealEmpty(x, y, currentBoard)];
+
+                    this.setState({
+                        boardData: updatedData,
+                        gameStatus: status
+                    });
+
+                } else {
+
+                    // If clickedTile !empty, show neighbours, update state
+                    clickedTile.isRevealed = true;
+
+                    //Create a new array of boardData to update the position of the revealed tile
+                    const updatedBoardData = [...this.state.boardData];
+
+                    // Assign the position of the revealed tile in the new array to the updated tile
+                    updatedBoardData[x][y] = { ...clickedTile };
+
+                    //Update state with updated board
+                    this.setState({
+                        boardData: updatedBoardData,
+                        gameStatus: status
+                    });
+
+                }
+            }
+
+        }
+    }
+
+    restartClickHandler = () => {
+        const newData = this.initializeBoard(this.state.height, this.state.width, this.state.mineCount);
+        this.setState({
+            board: newData,
+            gameStatus: gameStatuses.notInitialized,
+        });
+
+    }
+
+    //Method that will set the selected Difficulty from the user to the state difficulty, and using a setState callback, initialize the
+    // board.
+    changeDifficulty(e) {
+
+        let difficultySelected = e.target.value;
+        let heightForDifficulty = null;
+        let widthForDifficulty = null;
+        let minesForDifficulty = null;
+
+        // Set the width,height and mine count of the board according to the difficulty selected. 
+        switch (difficultySelected) {
+            //Hardcoded for the moment, will be different in the future
+            case "beginner":
+                heightForDifficulty = 4;
+                widthForDifficulty = 5;
+                minesForDifficulty = 6;
+                break;
+            case "intermediate":
+                heightForDifficulty = 6;
+                widthForDifficulty = 6;
+                minesForDifficulty = 12;
+                break;
+            case "advanced":
+                heightForDifficulty = 8;
+                widthForDifficulty = 8;
+                minesForDifficulty = 24;
+                break;
+            default:
+                break;
+        }
+
+        // setState callback to initialize state properties and the board via callback
+        this.setState(
+            {
+                difficulty: difficultySelected,
+                height: heightForDifficulty,
+                width: widthForDifficulty,
+                mineCount: minesForDifficulty
+            }, () => {
+                this.initializeBoard();
+            });
+    }
+
+    //Method that handles changes in board status and passes it as a prop to <Board> . This is result of lifting state up from Board to Game
+    // DONT THINK ACTUALLY NEED THIS. 
+    handleBoardChange() {
+
+    }
+
+    //Method to handle status change of the game when clicking tiles from Board.
+    handleStatusChange(newStatus) {
+        this.setState({ gameStatus: newStatus });
+
+    }
+
+    render() {
+
+        // dynamically rendering the board according to if the difficulty has been selected yet or not 
+        // this will later be passed on to <Board> as prop
+        let boardData = this.state.difficulty ? this.state.boardData : null;
+        return (
+            <div className={classes.game}>
+                <div className={classes.gameInfo}>
+                    <span className={classes.gameStatus}>
+                        {this.state.gameStatus}
+                    </span>
+                    <Menu
+                        mineCount={this.state.mineCount}
+                        restartClick={this.restartClickHandler}
+                        difficultyChangedHandler={(e) => this.changeDifficulty(e)} />
+                </div>
+                <Board
+                    data={boardData}
+                    gameStatus={this.state.gameStatus}
+                    onStatusChange={(e) => this.handleStatusChange(e)}
+                    tileClicked={this.tileClickedHandler}
+                />
+            </div>
+        );
+
+    }
+
+};
+
+export default game;
+
+game.propTypes = {
+    height: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    mines: PropTypes.number,
+    // Ensuring that difficulty is limited to specific values by treating it as an enum.
+    difficulty: PropTypes.oneOf(['easy', 'medium', 'difficult']),
+
+
+}

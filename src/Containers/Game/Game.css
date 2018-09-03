@@ -1,0 +1,22 @@
+.game{
+
+}
+
+
+.gameInfo {
+    margin-bottom: 20px;
+    background: #19a0d9;
+    padding: 7px;
+    text-align: center;
+    color: #fff;
+    min-height: 100px;
+    border-radius: 7px;
+    width: 60%;
+    display: block;
+  }
+
+  .gameStatus{
+      text-align: center;
+      font-weight: bold;
+      font-size: 32px;
+}
