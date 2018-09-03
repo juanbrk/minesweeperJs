@@ -108,8 +108,9 @@ class game extends PureComponent {
         return (tilesArr);
     }
 
-    // Method that gets the amount of mines that a tile's neighbours have and returns a new (updated) array
-    // with information on every tile and its neighbouring tiles.  
+    // Method that gets the amount of mines that a tile's neighbours have and returns a new (updated) array with information on every 
+    // tile and its neighbouring tiles.  Every mine with neighbouring mines will have its .neighbour property set to !=== 0 and its
+    // .isEmpty property set to false
     populateTilesWithNeighbours(data, height, width) {
 
         //Create a new copy of the original array to avoid reference issues
@@ -133,6 +134,8 @@ class game extends PureComponent {
                     // If no neighbour has mines, then continues being empty. If some neighbour contains mine, thats the number that this tile will store
                     if (mine !== 0) {
                         updatedData[i][j].neighbour = mine;
+                        updatedData[i][j].isEmpty = false;
+                        
                     }
                 }
             }
@@ -276,7 +279,7 @@ class game extends PureComponent {
         neighbours.forEach(neighbouringTile => {
             //Once visited, it is going to be revealed, since this is a neighbour of an empty tile, it does not contain mine. 
 
-            //Check if empty. If flagged or already revealed it, ommit it
+            //Check if empty. If flagged or already revealed, ommit it
             if (!neighbouringTile.isFlagged && !neighbouringTile.isRevealed && !neighbouringTile.containsMine) {
 
                 //vacia o vecino
@@ -390,12 +393,12 @@ class game extends PureComponent {
             case "beginner":
                 heightForDifficulty = 6;
                 widthForDifficulty = 6;
-                minesForDifficulty = 20;
+                minesForDifficulty = 5;
                 break;
             case "intermediate":
                 heightForDifficulty = 8;
                 widthForDifficulty = 8;
-                minesForDifficulty = 24;
+                minesForDifficulty = 16;
                 break;
             case "advanced":
                 heightForDifficulty = 10;
