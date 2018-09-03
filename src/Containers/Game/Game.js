@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import Board from '../Board/Board';
-import PropTypes from 'prop-types';
 import classes from './Game.css';
 import Menu from '../../Components/Menu/Menu';
 
@@ -389,19 +388,19 @@ class game extends PureComponent {
         switch (difficultySelected) {
             //Hardcoded for the moment, will be different in the future
             case "beginner":
-                heightForDifficulty = 4;
-                widthForDifficulty = 5;
-                minesForDifficulty = 6;
-                break;
-            case "intermediate":
                 heightForDifficulty = 6;
                 widthForDifficulty = 6;
-                minesForDifficulty = 12;
+                minesForDifficulty = 20;
                 break;
-            case "advanced":
+            case "intermediate":
                 heightForDifficulty = 8;
                 widthForDifficulty = 8;
                 minesForDifficulty = 24;
+                break;
+            case "advanced":
+                heightForDifficulty = 10;
+                widthForDifficulty = 10;
+                minesForDifficulty = 56;
                 break;
             default:
                 break;
@@ -511,13 +510,3 @@ class game extends PureComponent {
 };
 
 export default game;
-
-game.propTypes = {
-    height: PropTypes.number.isRequired,
-    width: PropTypes.number.isRequired,
-    mines: PropTypes.number,
-    // Ensuring that difficulty is limited to specific values by treating it as an enum.
-    difficulty: PropTypes.oneOf(['easy', 'medium', 'difficult']),
-
-
-}
