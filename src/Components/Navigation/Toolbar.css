@@ -12,9 +12,35 @@
     box-sizing: border-box;
     /* Has to be lower than the backdrop that is going to be created later*/
     z-index: 90;   
-    border-bottom: 2px solid black; 
+    border-bottom: 2px solid black 
 }
 
 .toolbar nav{
     height: 100%;
+}
+
+.toggleMenuButton{
+    background-color: transparent;
+    padding:12px;
+    border-radius: 5px;
+}
+
+.toggleMenuButton:hover{
+    color: #fff;
+}
+
+@media (min-width:500px){
+    .mobileOnly {
+        display:none;
+    }
+}
+
+@media (max-width: 500px){
+    .desktopOnly {
+        display: none;
+    }
+
+    .toolbar{
+        z-index: 110;
+    }
 }

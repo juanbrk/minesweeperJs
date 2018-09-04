@@ -28,3 +28,23 @@
   .containsMine {
     color: #fc543c;
   }
+
+  @media (max-width: 600px){
+      .tile{
+          height:25px;
+          width:25px;
+          font-size: 10px;
+          padding:-1;
+          line-height: 25px;
+      }
+  }
+
+  @media (max-width: 400px){
+    .tile{
+        height:20px;
+        width:20px;
+        font-size: 10px;
+        padding:-1;
+        line-height: 20px;
+    }
+}

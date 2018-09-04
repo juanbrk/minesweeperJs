@@ -21,3 +21,12 @@
       font-weight: bold;
       font-size: 32px;
 }
+
+@media (max-width: 600px){
+    
+      .gameStatus{
+          text-align: center;
+          font-weight: bold;
+          font-size: 16px;
+    }
+}
