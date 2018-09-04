@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import Board from '../Board/Board';
+import Board from '../../Components/Board/Board';
 import classes from './Game.css';
 import Menu from '../../Components/Menu/Menu';
 
@@ -14,6 +14,8 @@ const GAMESTATUSES = {
 class game extends PureComponent {
     constructor(props) {
         super(props);
+        
+        //Check which of this binding methods is actually necessary
         this.initializeBoard = this.initializeBoard.bind(this);
         this.populateBoardWithMines = this.populateBoardWithMines.bind(this);
         this.restartClickHandler = this.restartClickHandler.bind(this);
@@ -126,7 +128,6 @@ class game extends PureComponent {
                     const neighbours = this.traverseBoard(updatedData[i][j].rowIndex, updatedData[i][j].colIndex, updatedData);
                     //Replaced .map() method with a forEach() below
                     neighbours.forEach(neighbouringTile => {
-                        console.log(neighbouringTile);
                         if (neighbouringTile.containsMine) {
                             mine++;
                         }
