@@ -1,7 +1,6 @@
 import React from 'react';
 import NavigationItem from './NavigationItem/NavigationItem';
 import classes from './NavigationItems.css';
-
 const navigationItems = (props) => (
     <ul className={classes.navigationItems}>
         <NavigationItem
@@ -9,13 +8,13 @@ const navigationItems = (props) => (
             active> Play
         </NavigationItem>
         <NavigationItem
-            link={"/"}> Game Setup
+            link={"/game-setup"}> Game Setup
         </NavigationItem>
         <NavigationItem
-            link={"/"}> Board Setup
+            link={"/board-setup"}> Board Setup
         </NavigationItem>
         <NavigationItem
-            link={"/"}> Finished Games
+            link={"/finished-games"}> Finished Games
         </NavigationItem>
 
     </ul>
