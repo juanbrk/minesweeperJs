@@ -487,6 +487,9 @@ class game extends PureComponent {
         // dynamically rendering the board according to if the difficulty has been selected yet or not 
         // this will later be passed on to <Board> as prop
         let boardData = this.state.difficulty ? this.state.boardData : null;
+        
+        //If user has changed difficulty from game setup tab, then we need to pass some props to initialize board
+        let hasUserChangedDifficulty = this.props.modifiedDifficulty ? true : false;
         return (
             <div className={classes.game}>
                 <div className={classes.gameInfo}>
@@ -504,6 +507,11 @@ class game extends PureComponent {
                     onStatusChange={(e) => this.handleStatusChange(e)}
                     tileClicked={this.tileClickedHandler}
                     tileFlagged={this.rightClickHandler}
+                    //These props below are passed only if the user had changed difficulty
+                    difficulty={hasUserChangedDifficulty ? this.props.difficulty : null}
+                    height={hasUserChangedDifficulty ? this.props.height : null}
+                    width={hasUserChangedDifficulty ? this.props.width : null}
+                    mines={hasUserChangedDifficulty ? this.props.mines : null}
                 />
             </div>
         );

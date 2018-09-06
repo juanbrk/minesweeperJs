@@ -4,7 +4,8 @@ import SideDrawer from '../../Components/Navigation/SideDrawer/SideDrawer';
 import classes from './Layout.css';
 
 /*
-    Wrapper component that sets how the application will be displayed
+    Wrapper component that sets how the application will be displayed and works as a state holder to pass
+    data between components. 
 */
 
 class Layout extends Component {

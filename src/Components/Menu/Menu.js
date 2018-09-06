@@ -2,7 +2,7 @@ import React from 'react';
 import classes from './Menu.css';
 
 //Difficulties that will be rendered 
-const difficulties = {
+export const difficulties = {
     easy: "beginner",
     medium: "intermediate",
     hard: "advanced"
