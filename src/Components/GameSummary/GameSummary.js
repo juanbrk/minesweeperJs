@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from '../UI/Button/Button';
 
 /*
     Component that will hold the summary of the played game with stats
@@ -12,7 +13,7 @@ const gameSummary = (props) => {
         "Level",
         "Board height",
         "Board width",
-        "Number of mines",
+        "Number of mines left",
         "Start time",
         "End time",
         "Number of movements"
@@ -26,7 +27,7 @@ const gameSummary = (props) => {
     const resultsEntries = Object.entries(props.gameResults);
 
     // filter boardData that is an object, to display only non objects and 
-    const filteredResults = resultsEntries.filter(([_,value])=> typeof value !== "object");
+    const filteredResults = resultsEntries.filter(([_,value])=> typeof value !== "object" && typeof value !== "boolean" && typeof value !== "undefined");
 
     //map every result and return it as a list item todisplay on modal. 
     const gameSummary = filteredResults.map(([key,value], index)=>{
@@ -35,10 +36,7 @@ const gameSummary = (props) => {
                 <b>{attachedKeys[index]}</b>: {value}
             </li>
         );
-    })
-
-
-    
+    });
 
     return (
         <React.Fragment>
@@ -48,6 +46,12 @@ const gameSummary = (props) => {
                 {gameSummary}
             </ul>
             <p>Do you wish to save these results?</p>
+            <Button
+                clicked={props.save}
+                btnType={"success"}>Save</Button>
+            <Button
+                clicked={props.cancel}
+                btnType={"danger"}>Cancel</Button>
         </React.Fragment>
     );
 };

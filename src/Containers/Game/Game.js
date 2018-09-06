@@ -5,6 +5,7 @@ import Menu from '../../Components/Menu/Menu';
 import Modal from '../../Components/UI/Modal/Modal';
 import GameSummary from '../../Components/GameSummary/GameSummary';
 
+
 const GAMESTATUSES = {
     notInitialized: "Make your first move",
     inProgress: "Not yet loosing",
@@ -24,6 +25,8 @@ class game extends PureComponent {
         this.changeDifficulty = this.changeDifficulty.bind(this);
         this.tileClickedHandler = this.tileClickedHandler.bind(this);
         this.rightClickHandler = this.rightClickHandler.bind(this);
+        this.handleModalClosed = this.handleModalClosed.bind(this);
+        this.handleGameSaved = this.handleGameSaved.bind(this);
 
     }
 
@@ -40,6 +43,7 @@ class game extends PureComponent {
         movesCount: 0,
         //Will be rendered once the difficulty has been selected 
         boardData: null,
+        finished: false
     }
 
     // Method that creates a board according to the difficulty selected by the user. Will be passed down to Board as a prop.
@@ -253,6 +257,7 @@ class game extends PureComponent {
                 this.setState({
                     gameStatus: GAMESTATUSES.won,
                     endTime: new Date().toString(),
+                    finished: true
                 });
             }
 
@@ -348,6 +353,7 @@ class game extends PureComponent {
                             movesCount: prevState.movesCount + 1,
                             startTime: new Date().toString(),
                             endTime: new Date().toString(),
+                            finished:true
                         }
                     });
 
@@ -359,21 +365,25 @@ class game extends PureComponent {
                             gameStatus: GAMESTATUSES.lost,
                             movesCount: prevState.movesCount + 1,
                             endTime: new Date().toString(),
+                            finished:true
                         }
                     });
                 }
 
-                this.setState(prevState => {
-                    return {
-                        gameStatus: GAMESTATUSES.lost,
-                        movesCount: prevState.movesCount + 1,
-                        endTime: new Date().toString(),
-                    }
-                });
+                // this.setState(prevState => {
+                //     return {
+                //         gameStatus: GAMESTATUSES.lost,
+                //         movesCount: prevState.movesCount + 1,
+                //         endTime: new Date().toString(),
+                //         finished: true
+                //     }
+                // });
 
                 this.revealBoardContent();
 
             } else {
+
+                //if clicked mine !containsmine
 
                 // Variable to update gameStatus
                 let status = GAMESTATUSES.inProgress
@@ -457,7 +467,8 @@ class game extends PureComponent {
             gameStatus: GAMESTATUSES.notInitialized,
             movesCount: 0,
             startTime: null,
-            endTime: null
+            endTime: null,
+            finished: false
         });
 
     }
@@ -499,7 +510,8 @@ class game extends PureComponent {
                 difficulty: difficultySelected,
                 height: heightForDifficulty,
                 width: widthForDifficulty,
-                mineCount: minesForDifficulty
+                mineCount: minesForDifficulty,
+                movesCount: 0
             }, () => {
                 this.initializeBoard();
             });
@@ -591,8 +603,15 @@ class game extends PureComponent {
         this.setState({ gameStatus: newStatus });
     }
 
-    render() {
+    handleModalClosed(){
+        this.setState({finished: false})
+    }
 
+    handleGameSaved(){
+        alert("You saved your game!")
+    }
+
+    render() {
         // dynamically rendering the board according to if the difficulty has been selected yet or not 
         // this will later be passed on to <Board> as prop
         let boardData = this.state.difficulty ? this.state.boardData : null;
@@ -608,8 +627,13 @@ class game extends PureComponent {
                         restartClick={this.restartClickHandler}
                         difficultyChangedHandler={(e) => this.changeDifficulty(e)} />
                 </div>
-                <Modal show={this.state.endTime}>
-                    <GameSummary gameResults={this.state} />
+                <Modal 
+                    show={this.state.finished}
+                    close={this.handleModalClosed}>
+                    <GameSummary 
+                        gameResults={this.state}
+                        save={this.handleGameSaved}
+                        cancel={this.handleModalClosed} />
                 </Modal>
                 <Board
                     data={boardData}
