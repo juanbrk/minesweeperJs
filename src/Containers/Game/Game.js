@@ -14,7 +14,7 @@ const GAMESTATUSES = {
 class game extends PureComponent {
     constructor(props) {
         super(props);
-        
+
         //Check which of this binding methods is actually necessary
         this.initializeBoard = this.initializeBoard.bind(this);
         this.populateBoardWithMines = this.populateBoardWithMines.bind(this);
@@ -35,6 +35,9 @@ class game extends PureComponent {
         difficulty: null,
         //Will be rendered once the difficulty has been selected 
         boardData: null,
+        startTime: null,
+        endTime: null,
+        movesCount: 0
     }
 
     // Method that creates a board according to the difficulty selected by the user. Will be passed down to Board as a prop.
@@ -239,6 +242,7 @@ class game extends PureComponent {
                 //if both arrays are equal, game is won. Update gameStatus
                 this.setState({
                     gameStatus: GAMESTATUSES.won,
+                    endTime: new Date(),
                 });
             }
 
@@ -324,8 +328,37 @@ class game extends PureComponent {
                 //If contains mine, player looses, game status is updated and board content revealed
                 alert("There is a mine, you explode! and lose btw");
 
-                this.setState({
-                    gameStatus: GAMESTATUSES.lost,
+                //Check if player looses on first move, if so set endtime === startTime
+                if (this.state.movesCount === 0) {
+
+                    this.setState(prevState => {
+
+                        return {
+                            gameStatus: GAMESTATUSES.lost,
+                            movesCount: prevState.movesCount + 1,
+                            startTime: new Date(),
+                            endTime: new Date(),
+                        }
+                    });
+
+                } else {
+
+                    //if movesCount >0 startTime != endTime
+                    this.setState(prevState => {
+                        return {
+                            gameStatus: GAMESTATUSES.lost,
+                            movesCount: prevState.movesCount + 1,
+                            endTime: new Date(),
+                        }
+                    });
+                }
+
+                this.setState(prevState => {
+                    return {
+                        gameStatus: GAMESTATUSES.lost,
+                        movesCount: prevState.movesCount + 1,
+                        endTime: new Date(),
+                    }
                 });
 
                 this.revealBoardContent();
@@ -342,10 +375,30 @@ class game extends PureComponent {
                     const currentBoard = [...this.state.boardData];
                     const updatedData = [...this.revealEmpty(x, y, currentBoard)];
 
-                    this.setState({
-                        boardData: updatedData,
-                        gameStatus: status
-                    });
+                    //Check if this is the first click, to start clocking gameDuration
+                    if (this.state.movesCount === 0) {
+                        this.setState(prevState => {
+                            return {
+                                boardData: updatedData,
+                                gameStatus: status,
+                                movesCount: prevState.movesCount + 1,
+                                startTime: new Date(),
+                            }
+                        });
+                    } else {
+
+                        //if not the first click just update state with status, movesCount and gameStatus
+
+                        this.setState(prevState => {
+                            return {
+                                boardData: updatedData,
+                                gameStatus: status,
+                                movesCount: prevState.movesCount + 1,
+                            }
+                        });
+                    }
+
+
 
                 } else {
 
@@ -358,11 +411,28 @@ class game extends PureComponent {
                     // Assign the position of the revealed tile in the new array to the updated tile
                     updatedBoardData[x][y] = { ...clickedTile };
 
-                    //Update state with updated board
-                    this.setState({
-                        boardData: updatedBoardData,
-                        gameStatus: status
-                    });
+                    //Check if this is the first click, to start clocking gameDuration
+                    if (this.state.movesCount === 0) {
+                        this.setState(prevState => {
+                            return {
+                                boardData: updatedBoardData,
+                                gameStatus: status,
+                                movesCount: prevState.movesCount + 1,
+                                startTime: new Date(),
+                            }
+                        });
+                    } else {
+
+                        //if not the first click just update state with status, movesCount and gameStatus
+
+                        this.setState(prevState => {
+                            return {
+                                boardData: updatedBoardData,
+                                gameStatus: status,
+                                movesCount: prevState.movesCount + 1,
+                            }
+                        });
+                    }
 
                 }
             }
@@ -375,6 +445,9 @@ class game extends PureComponent {
         this.setState({
             board: newData,
             gameStatus: GAMESTATUSES.notInitialized,
+            movesCount: 0,
+            startTime: null,
+            endTime: null
         });
 
     }
@@ -455,21 +528,47 @@ class game extends PureComponent {
             if (minesLeft === 0) {
 
                 //If user flagged possible last tile containing a mine, check if won with a setState callback to checkIfWin()
-                this.setState(
-                    {
+                this.setState(prevState => {
+                    return {
                         boardData: updatedData,
                         mineCount: minesLeft,
-                    },
+                        movesCount: prevState.movesCount + 1,
+                    }
+
+                },
                     () => {
                         this.checkIfWin(this.state.mineCount)
                     });
             } else {
 
-                //If remaining mines !== 0 update only boardData and minesLeft counter
-                this.setState({
-                    boardData: updatedData,
-                    mineCount: minesLeft
-                })
+                //If remaining mines !== 0 update only boardData, minesLeft and movesCount counter
+
+                //Check if this is the first move to start clocking gameTime
+                if (this.state.movesCount === 0) {
+
+                    //If it is first move, set startTime
+                    this.setState(prevState => {
+                        return {
+                            boardData: updatedData,
+                            mineCount: minesLeft,
+                            movesCount: prevState.movesCount +1,
+                            startTime: new Date()
+                        }
+                    });
+
+                } else {
+
+                    // If not first move, update state without setting startTime
+                    this.setState(prevState => {
+                        return {
+                            boardData: updatedData,
+                            mineCount: minesLeft,
+                            movesCount: prevState.movesCount +1
+                        }
+                    });
+                }
+                
+                
             }
 
         }
@@ -487,7 +586,7 @@ class game extends PureComponent {
         // dynamically rendering the board according to if the difficulty has been selected yet or not 
         // this will later be passed on to <Board> as prop
         let boardData = this.state.difficulty ? this.state.boardData : null;
-        
+
         //If user has changed difficulty from game setup tab, then we need to pass some props to initialize board
         let hasUserChangedDifficulty = this.props.modifiedDifficulty ? true : false;
         return (

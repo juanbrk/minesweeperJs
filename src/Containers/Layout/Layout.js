@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Toolbar from '../../Components/Navigation/Toolbar';
 import SideDrawer from '../../Components/Navigation/SideDrawer/SideDrawer';
+import Modal from '../../Components/UI/Modal/Modal';
 import classes from './Layout.css';
 
 /*
@@ -23,9 +24,9 @@ class Layout extends Component {
         this.setState({ showSideDrawer: false });
     }
 
-    onMenuClicked(){
-        this.setState((prevState=>{
-            return {showSideDrawer: !prevState.showSideDrawer}
+    onMenuClicked() {
+        this.setState((prevState => {
+            return { showSideDrawer: !prevState.showSideDrawer }
         }))
 
     }
@@ -33,14 +34,17 @@ class Layout extends Component {
     render() {
         return (
             <React.Fragment>
-                <Toolbar 
+                <Toolbar
                     clicked={this.onMenuClicked} />
                 <SideDrawer
                     open={this.state.showSideDrawer}
                     close={this.handleSideDrawerClosed} />
-                <main className={classes.content}>
-                    {this.props.children}
-                </main>
+                <Modal>
+                    <main className={classes.content}>
+                        {this.props.children}
+                    </main>
+                </Modal>
+
             </React.Fragment>
         );
     }
