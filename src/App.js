@@ -43,19 +43,7 @@ class App extends Component {
           <Switch>
             <Route
               exact path='/'
-              render={() => (
-                /*
-                  If user changed difficulty we render a game with some props passed, if not no prop is passsed
-                  the <Game> doesnt accept props. This is a conditional rendering using a ternary operator
-                */
-                this.state.hasDifficultyChanged ? <Game height={this.state.newHeight}
-                  width={this.state.newWidth}
-                  mines={this.state.newMineCount}
-                  difficulty={this.state.modifiedDifficulty}
-                /> : <Game />
-                
-              )
-              }
+              component={Game}
             />
             <Route
               path='/game-setup'

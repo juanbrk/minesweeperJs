@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Toolbar from '../../Components/Navigation/Toolbar';
 import SideDrawer from '../../Components/Navigation/SideDrawer/SideDrawer';
-import Modal from '../../Components/UI/Modal/Modal';
 import classes from './Layout.css';
 
 /*
@@ -39,15 +38,17 @@ class Layout extends Component {
                 <SideDrawer
                     open={this.state.showSideDrawer}
                     close={this.handleSideDrawerClosed} />
-                <Modal>
-                    <main className={classes.content}>
-                        {this.props.children}
-                    </main>
-                </Modal>
+                <main className={classes.content}>
+                    {this.props.children}
+                </main>
+
 
             </React.Fragment>
         );
     }
 }
+
+// TODO pasar gameResults como prop a GameSummary con el contenido del state de main. Obtener el estado de
+// Game y pasarlo para Modal como prop. 
 
 export default Layout;

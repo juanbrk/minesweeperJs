@@ -2,6 +2,8 @@ import React, { PureComponent } from 'react';
 import Board from '../../Components/Board/Board';
 import classes from './Game.css';
 import Menu from '../../Components/Menu/Menu';
+import Modal from '../../Components/UI/Modal/Modal';
+import GameSummary from '../../Components/GameSummary/GameSummary';
 
 const GAMESTATUSES = {
     notInitialized: "Make your first move",
@@ -27,17 +29,17 @@ class game extends PureComponent {
 
     state = {
         //Will be set when the board is initialized
-        mineCount: null,
-        height: null,
-        width: null,
         gameStatus: GAMESTATUSES.notInitialized,
         //Will be selected from the dropDown menu
         difficulty: null,
-        //Will be rendered once the difficulty has been selected 
-        boardData: null,
+        height: null,
+        width: null,
+        mineCount: null,
         startTime: null,
         endTime: null,
-        movesCount: 0
+        movesCount: 0,
+        //Will be rendered once the difficulty has been selected 
+        boardData: null,
     }
 
     // Method that creates a board according to the difficulty selected by the user. Will be passed down to Board as a prop.
@@ -86,8 +88,16 @@ class game extends PureComponent {
         return emptyTilesArr;
     }
 
-    // Populates board with as many mines as were passed as props. Every tile that will hold a mine will have its .containsMine set to true
-    // and its .isEmpty property set to false
+
+    /**
+    * Populates board with mines. Every tile that will hold a mine will have its .containsMine set to true
+    * and its .isEmpty property set to false
+    * @param tilesArr
+    * @param height
+    * @param width
+    * @param mines
+    * @returns tilesArr populated with as many mines as were passed in mines   
+    */
     populateBoardWithMines(tilesArr, height, width, mines) {
         let xPosition = 0, yPosition = 0, minesPlanted = 0, init = 0;
 
@@ -242,7 +252,7 @@ class game extends PureComponent {
                 //if both arrays are equal, game is won. Update gameStatus
                 this.setState({
                     gameStatus: GAMESTATUSES.won,
-                    endTime: new Date(),
+                    endTime: new Date().toString(),
                 });
             }
 
@@ -336,8 +346,8 @@ class game extends PureComponent {
                         return {
                             gameStatus: GAMESTATUSES.lost,
                             movesCount: prevState.movesCount + 1,
-                            startTime: new Date(),
-                            endTime: new Date(),
+                            startTime: new Date().toString(),
+                            endTime: new Date().toString(),
                         }
                     });
 
@@ -348,7 +358,7 @@ class game extends PureComponent {
                         return {
                             gameStatus: GAMESTATUSES.lost,
                             movesCount: prevState.movesCount + 1,
-                            endTime: new Date(),
+                            endTime: new Date().toString(),
                         }
                     });
                 }
@@ -357,7 +367,7 @@ class game extends PureComponent {
                     return {
                         gameStatus: GAMESTATUSES.lost,
                         movesCount: prevState.movesCount + 1,
-                        endTime: new Date(),
+                        endTime: new Date().toString(),
                     }
                 });
 
@@ -382,7 +392,7 @@ class game extends PureComponent {
                                 boardData: updatedData,
                                 gameStatus: status,
                                 movesCount: prevState.movesCount + 1,
-                                startTime: new Date(),
+                                startTime: new Date().toString(),
                             }
                         });
                     } else {
@@ -418,7 +428,7 @@ class game extends PureComponent {
                                 boardData: updatedBoardData,
                                 gameStatus: status,
                                 movesCount: prevState.movesCount + 1,
-                                startTime: new Date(),
+                                startTime: new Date().toString(),
                             }
                         });
                     } else {
@@ -551,8 +561,8 @@ class game extends PureComponent {
                         return {
                             boardData: updatedData,
                             mineCount: minesLeft,
-                            movesCount: prevState.movesCount +1,
-                            startTime: new Date()
+                            movesCount: prevState.movesCount + 1,
+                            startTime: new Date().toString()
                         }
                     });
 
@@ -563,12 +573,12 @@ class game extends PureComponent {
                         return {
                             boardData: updatedData,
                             mineCount: minesLeft,
-                            movesCount: prevState.movesCount +1
+                            movesCount: prevState.movesCount + 1
                         }
                     });
                 }
-                
-                
+
+
             }
 
         }
@@ -587,8 +597,6 @@ class game extends PureComponent {
         // this will later be passed on to <Board> as prop
         let boardData = this.state.difficulty ? this.state.boardData : null;
 
-        //If user has changed difficulty from game setup tab, then we need to pass some props to initialize board
-        let hasUserChangedDifficulty = this.props.modifiedDifficulty ? true : false;
         return (
             <div className={classes.game}>
                 <div className={classes.gameInfo}>
@@ -600,17 +608,15 @@ class game extends PureComponent {
                         restartClick={this.restartClickHandler}
                         difficultyChangedHandler={(e) => this.changeDifficulty(e)} />
                 </div>
+                <Modal show={this.state.endTime}>
+                    <GameSummary gameResults={this.state} />
+                </Modal>
                 <Board
                     data={boardData}
                     gameStatus={this.state.gameStatus}
                     onStatusChange={(e) => this.handleStatusChange(e)}
                     tileClicked={this.tileClickedHandler}
                     tileFlagged={this.rightClickHandler}
-                    //These props below are passed only if the user had changed difficulty
-                    difficulty={hasUserChangedDifficulty ? this.props.difficulty : null}
-                    height={hasUserChangedDifficulty ? this.props.height : null}
-                    width={hasUserChangedDifficulty ? this.props.width : null}
-                    mines={hasUserChangedDifficulty ? this.props.mines : null}
                 />
             </div>
         );
