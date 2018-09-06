@@ -1,13 +1,13 @@
-import React from 'react';
+import React, {Component} from 'react';
 import Button from '../UI/Button/Button';
 
 /*
     Component that will hold the summary of the played game with stats
     such as start and end time, result and final board display
 */
-const gameSummary = (props) => {
-
-    // Values that will replace props.gameResults' object keys. (Final result instead of gameStatus, and so on)
+class GameSummary extends Component {  
+    render(){
+        // Values that will replace props.gameResults' object keys. (Final result instead of gameStatus, and so on)
     const attachedKeys = [
         "Final result",
         "Level",
@@ -19,12 +19,10 @@ const gameSummary = (props) => {
         "Number of movements"
     ];
 
-    // Receive the JS object that was passed as props.gameResults. If user wants to save its results this is what 
-    // its going to be saved
-    const receivedResults = props.gameResults;
+    // Receive the JS object that was passed as props.gameResults. 
 
     // for displaying inside the modal, we have to obtain the key value pairs of only non objects values
-    const resultsEntries = Object.entries(props.gameResults);
+    const resultsEntries = Object.entries(this.props.gameResults);
 
     // filter boardData that is an object, to display only non objects and 
     const filteredResults = resultsEntries.filter(([_,value])=> typeof value !== "object" && typeof value !== "boolean" && typeof value !== "undefined");
@@ -37,23 +35,23 @@ const gameSummary = (props) => {
             </li>
         );
     });
+        return (
+            <React.Fragment>
+                <h2>Game Summary</h2>
+                <p>Your last game stats:</p>
+                <ul>
+                    {gameSummary}
+                </ul>
+                <p>Do you wish to save these results?</p>
+                <Button
+                    clicked={this.props.save}
+                    btnType={"success"}>Save</Button>
+                <Button
+                    clicked={this.props.cancel}
+                    btnType={"danger"}>Cancel</Button>
+            </React.Fragment>
+        );
+    }
+} 
 
-    return (
-        <React.Fragment>
-            <h2>Game Summary</h2>
-            <p>Your last game stats:</p>
-            <ul>
-                {gameSummary}
-            </ul>
-            <p>Do you wish to save these results?</p>
-            <Button
-                clicked={props.save}
-                btnType={"success"}>Save</Button>
-            <Button
-                clicked={props.cancel}
-                btnType={"danger"}>Cancel</Button>
-        </React.Fragment>
-    );
-};
-
-export default gameSummary;
+export default GameSummary;

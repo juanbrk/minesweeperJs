@@ -4,6 +4,7 @@ import classes from './Game.css';
 import Menu from '../../Components/Menu/Menu';
 import Modal from '../../Components/UI/Modal/Modal';
 import GameSummary from '../../Components/GameSummary/GameSummary';
+import axios from 'axios';
 
 
 const GAMESTATUSES = {
@@ -26,7 +27,6 @@ class game extends PureComponent {
         this.tileClickedHandler = this.tileClickedHandler.bind(this);
         this.rightClickHandler = this.rightClickHandler.bind(this);
         this.handleModalClosed = this.handleModalClosed.bind(this);
-        this.handleGameSaved = this.handleGameSaved.bind(this);
 
     }
 
@@ -607,8 +607,22 @@ class game extends PureComponent {
         this.setState({finished: false})
     }
 
-    handleGameSaved(){
-        alert("You saved your game!")
+    ///////////////////////////////////////////////////////////////////// server handling
+
+    saveGameHandler = () =>{
+        const game = {
+            level: this.state.difficulty,
+            status: this.state.gameStatus,
+            started: this.state.startTime,
+            ended: this.state.endTime,
+            minesLeft: this.state.mineCount,
+            moves: this.state.movesCount
+        }
+
+        axios.post("https://react-minesweeper-b33e6.firebaseio.com/",game)
+        .then(response =>{
+            console.log(response);
+        });
     }
 
     render() {
@@ -632,7 +646,7 @@ class game extends PureComponent {
                     close={this.handleModalClosed}>
                     <GameSummary 
                         gameResults={this.state}
-                        save={this.handleGameSaved}
+                        save={this.saveGameHandler}
                         cancel={this.handleModalClosed} />
                 </Modal>
                 <Board
