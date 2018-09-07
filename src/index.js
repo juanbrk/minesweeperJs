@@ -6,6 +6,9 @@ import registerServiceWorker from './registerServiceWorker';
 import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
 
+//Global default URL for posting and fetching data to firebase
+axios.defaults.baseURL="https://react-minesweeper-b33e6.firebaseio.com/";
+
 // Global interceptor for every request, handle requests configurations and errors. 
 axios.interceptors.request.use(request => {
     //Edit request config

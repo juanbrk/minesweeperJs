@@ -589,13 +589,8 @@ class game extends PureComponent {
                         }
                     });
                 }
-
-
             }
-
         }
-
-
     }
 
     //Method to handle status change of the game when clicking tiles from Board.
@@ -619,7 +614,7 @@ class game extends PureComponent {
             moves: this.state.movesCount
         }
 
-        axios.post("https://react-minesweeper-b33e6.firebaseio.com/",game)
+        axios.post("/games.json", game)
         .then(response =>{
             console.log(response);
         });
