@@ -635,6 +635,8 @@ class game extends PureComponent {
             .catch(error => {
                 //hide spinner
                this.setState({loading:false});
+
+               alert("Something went wrong, please try again")
             });
     }
     //////////////////////////////////////////////////////////////////// render

@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { Component } from 'react';
+import axios from 'axios';
 
-const finishedGames = (props) => (
-    <h2>Esta es la pagina de juegos terminados</h2>
-);
+class  FinishedGames extends Component {
+    state ={
+        games: [],
+    }
+    render(){
+        return(
+            <h2>Esta es la pagina de juegos terminados</h2>
+        );
+    }
+} 
 
-export default finishedGames;
+export default FinishedGames;
