@@ -49,8 +49,8 @@ class App extends Component {
               path='/game-setup'
               render={() => <GameSetup difficultyChanged={this.handleDifficultyChange} />}
             />
-            <Route path='/board-setup' component={FinishedGames} />
-            <Route path='/finished-games' component={BoardSetup} />
+            <Route path='/board-setup' component={BoardSetup} />
+            <Route path='/finished-games' component={FinishedGames} />
           </Switch>
         </Layout>
       </div>
