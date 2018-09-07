@@ -2,10 +2,12 @@ import React from 'react';
 import classes from './GamePost.css';
 
 const gamePost = (props) => (
-    <article className={classes.gamePost}>
+    <article 
+        className={classes.gamePost}
+        onClick={props.clicked}>
         <h1>{props.title}</h1>
         <div className="Info">
-            <div className="Author">Author</div>
+            <span>Date to be here</span>
         </div>
     </article>
 );

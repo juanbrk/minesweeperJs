@@ -38,7 +38,7 @@ class GameSummary extends Component {
         return (
             <React.Fragment>
                 <h2>Game Summary</h2>
-                <p>Your last game stats:</p>
+                <p>{this.props.title}</p>
                 <ul>
                     {gameSummary}
                 </ul>

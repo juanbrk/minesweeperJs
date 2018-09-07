@@ -651,7 +651,8 @@ class game extends PureComponent {
         let gameSummary = <GameSummary
             gameResults={this.state}
             save={this.saveGameHandler}
-            cancel={this.handleModalClosed} />
+            cancel={this.handleModalClosed}
+            title={"Your last game stats:"} />
         
         if (this.state.loading) {
             gameSummary = <Spinner />;
