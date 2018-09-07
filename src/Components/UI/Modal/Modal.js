@@ -12,7 +12,7 @@ class Modal extends Component {
 
     // avoid useless re rendering to improve performance. 
     shouldComponentUpdate(nextProps){
-        return nextProps.show !== this.props.show
+        return nextProps.show !== this.props.show || this.props.children !== nextProps.children
     }
     render() {
         return (

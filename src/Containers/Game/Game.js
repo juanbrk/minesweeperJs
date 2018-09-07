@@ -5,7 +5,7 @@ import Menu from '../../Components/Menu/Menu';
 import Modal from '../../Components/UI/Modal/Modal';
 import GameSummary from '../../Components/GameSummary/GameSummary';
 import axios from 'axios';
-
+import Spinner from '../../Components/UI/Spinner/Spinner';
 
 const GAMESTATUSES = {
     notInitialized: "Make your first move",
@@ -43,7 +43,8 @@ class game extends PureComponent {
         movesCount: 0,
         //Will be rendered once the difficulty has been selected 
         boardData: null,
-        finished: false
+        finished: false,
+        loading: false
     }
 
     // Method that creates a board according to the difficulty selected by the user. Will be passed down to Board as a prop.
@@ -353,7 +354,7 @@ class game extends PureComponent {
                             movesCount: prevState.movesCount + 1,
                             startTime: new Date().toString(),
                             endTime: new Date().toString(),
-                            finished:true
+                            finished: true
                         }
                     });
 
@@ -365,7 +366,7 @@ class game extends PureComponent {
                             gameStatus: GAMESTATUSES.lost,
                             movesCount: prevState.movesCount + 1,
                             endTime: new Date().toString(),
-                            finished:true
+                            finished: true
                         }
                     });
                 }
@@ -598,13 +599,20 @@ class game extends PureComponent {
         this.setState({ gameStatus: newStatus });
     }
 
-    handleModalClosed(){
-        this.setState({finished: false})
+    handleModalClosed() {
+        this.setState({ finished: false })
     }
 
     ///////////////////////////////////////////////////////////////////// server handling
 
-    saveGameHandler = () =>{
+    /**
+     * Handles POST connections with the server and shows/hides the spinner. 
+     */
+    saveGameHandler = () => {
+        
+        //show spinner
+        this.setState({loading:true});
+
         const game = {
             level: this.state.difficulty,
             status: this.state.gameStatus,
@@ -615,15 +623,37 @@ class game extends PureComponent {
         }
 
         axios.post("/games.json", game)
-        .then(response =>{
-            console.log(response);
-        });
+            .then(response => {
+                //hide spinner and Modal
+               this.setState({
+                   loading:false,
+                   finished:false
+                });
+
+                alert("Game saved");
+            })
+            .catch(error => {
+                //hide spinner
+               this.setState({loading:false});
+            });
     }
+    //////////////////////////////////////////////////////////////////// render
 
     render() {
         // dynamically rendering the board according to if the difficulty has been selected yet or not 
         // this will later be passed on to <Board> as prop
         let boardData = this.state.difficulty ? this.state.boardData : null;
+
+        // Determine if show GameSummary  or spinner according if there's a 
+        // connection with the server going on
+        let gameSummary = <GameSummary
+            gameResults={this.state}
+            save={this.saveGameHandler}
+            cancel={this.handleModalClosed} />
+        
+        if (this.state.loading) {
+            gameSummary = <Spinner />;
+        }
 
         return (
             <div className={classes.game}>
@@ -636,13 +666,10 @@ class game extends PureComponent {
                         restartClick={this.restartClickHandler}
                         difficultyChangedHandler={(e) => this.changeDifficulty(e)} />
                 </div>
-                <Modal 
+                <Modal
                     show={this.state.finished}
                     close={this.handleModalClosed}>
-                    <GameSummary 
-                        gameResults={this.state}
-                        save={this.saveGameHandler}
-                        cancel={this.handleModalClosed} />
+                        {gameSummary}
                 </Modal>
                 <Board
                     data={boardData}
