@@ -31,16 +31,16 @@ class game extends PureComponent {
     }
 
     state = {
+        endTime: null,
+        height: null,
+        difficulty: null,
+        mineCount: null,
+        movesCount: 0,
+        startTime: null,
         //Will be set when the board is initialized
         gameStatus: GAMESTATUSES.notInitialized,
         //Will be selected from the dropDown menu
-        difficulty: null,
-        height: null,
         width: null,
-        mineCount: null,
-        startTime: null,
-        endTime: null,
-        movesCount: 0,
         //Will be rendered once the difficulty has been selected 
         boardData: null,
         finished: false,
@@ -614,14 +614,18 @@ class game extends PureComponent {
         this.setState({loading:true});
 
         const game = {
-            level: this.state.difficulty,
-            status: this.state.gameStatus,
-            started: this.state.startTime,
             ended: this.state.endTime,
+            height:this.state.height,
+            level: this.state.difficulty,
             minesLeft: this.state.mineCount,
-            moves: this.state.movesCount
+            moves: this.state.movesCount,
+            started: this.state.startTime,
+            status: this.state.gameStatus,
+            width: this.state.width,
         }
 
+
+        //TODO configure games to sort properties in a pre-defined way to enhance UX
         axios.post("/games.json", game)
             .then(response => {
                 //hide spinner and Modal
@@ -652,7 +656,8 @@ class game extends PureComponent {
             gameResults={this.state}
             save={this.saveGameHandler}
             cancel={this.handleModalClosed}
-            title={"Your last game stats:"} />
+            title={"Your last game stats:"}
+            showSave showCancel />
         
         if (this.state.loading) {
             gameSummary = <Spinner />;
