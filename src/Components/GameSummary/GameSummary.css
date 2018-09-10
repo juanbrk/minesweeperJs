@@ -1,0 +1,39 @@
+.title{
+    background-color: #fff;
+    text-align: center;
+    color: #3c98c0;
+    font-size: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.gameStats{
+    background-color: aliceblue;
+}
+
+.gameStats p{
+    font-size: 16;
+    padding-left: 5px;
+    text-transform: uppercase;
+}
+
+.cta{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: stretch;;
+}
+
+.ctaButton{
+    display: flex;
+    flex:1;
+    align-self: center;
+    align-content: center;
+}
+
+.ctaTitle{
+    flex:0 0 100%;
+    font-size: 22px;
+}

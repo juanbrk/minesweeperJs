@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Button from '../UI/Button/Button';
+import classes from './GameSummary.css';
 
 /*
     Component that will hold the summary of the played game with stats
@@ -51,10 +52,11 @@ class GameSummary extends Component {
 
         // Dynamically show buttons &&/|| CTA text if props tell to do so
         const saveButton = this.props.showSave ? <React.Fragment>
-            <p>Do you wish to save these results?</p>
+            <p className={classes.ctaTitle}>Do you wish to save these results?</p>
             <Button
                 clicked={this.props.save}
-                btnType={"success"}>Save</Button>
+                btnType={"success"}
+                className={classes.ctaButton}>Save</Button>
         </React.Fragment> : null;
 
         const cancelButton = this.props.showCancel ? <Button
@@ -68,14 +70,19 @@ class GameSummary extends Component {
 
         return (
             <React.Fragment>
-                <h2>Game Summary</h2>
-                <p>{this.props.title}</p>
-                <ul>
-                    {gameSummary}
-                </ul>
+                <h2 className={classes.title}>Game Summary</h2>
+                <div className={classes.gameStats}>
+                    <p>{this.props.title}</p>
+                    <ul>
+                        {gameSummary}
+                    </ul>
+                </div>
+                <div className={classes.cta}>
                     {saveButton}
                     {cancelButton}
                     {continueButton}
+                </div>
+
             </React.Fragment>
         );
     }
