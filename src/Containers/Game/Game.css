@@ -1,40 +1,43 @@
+.container{
+    width: 100vh;
+}
+
 .game{
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    align-content: flex-start;
+    align-items: flex-start;
+    justify-content: center;
+    flex-flow: column wrap;
     margin:5px 60px;
-
 }
 
   .gameInfo {
     margin-bottom: 20px;
     background: #19a0d9;
-    padding: 7px;
+    padding: 10px;
     display:flex;
-    flex-direction: column;
+    flex-flow: column wrap;
     align-items: center;
     text-align: center;
     color: #fff;
-    min-height: 100px;
+    min-height: 200px;
     border-radius: 7px;
-    width:60%;
+    width:70%;
+    margin-left: 15%;
+    margin-right: 15%;
+  }
+
+  .board{
+      width: 100%;
+      display: flex;
+      align-content: center;
+      align-items: flex-start;
+      justify-content: space-between;
   }
 
   .gameStatus{
-      text-align: center;
       font-weight: bold;
       font-size: 32px;
+      font-family: 'Heebo', sans-serif;
 }
 
-@media (max-width: 600px){
-    
-      .gameStatus{
-          text-align: center;
-          font-weight: bold;
-          font-size: 16px;
-    }
-
-    .gameInfo{
-        height: 150px;
-    }
-}

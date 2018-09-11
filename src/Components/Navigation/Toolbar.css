@@ -4,7 +4,7 @@
     position: fixed;
     top: 0px;
     left: 0px;
-    background-color: #19a0d9;
+    background-color: #DFF0D8;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -23,10 +23,13 @@
     background-color: transparent;
     padding:12px;
     border-radius: 5px;
+    font-family:  'Noto Sans KR', sans-serif;
+    color: #3C98C0;
+    text-transform:uppercase;
 }
 
 .toggleMenuButton:hover{
-    color: #fff;
+    color: #5B7F4C;
 }
 
 @media (min-width:500px){

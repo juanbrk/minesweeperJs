@@ -22,3 +22,57 @@
     color: #A1ACB2;
     background-color: #fafafa;
 }
+
+.segmentedControl{
+    position: relative;
+      background-color: transparent;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      border-bottom: 2px solid black;
+      padding-bottom: 8px;
+      padding-top: 8px;
+      text-align: center;
+      cursor: pointer;
+      z-index: 2;
+      margin: -1px;
+      width: 100px; 
+      font-family: 'Encode Sans Condensed', sans-serif;
+      font-size: 1.2em;
+}
+
+.segmentedControl:hover,
+.segmentedControl:active,
+.segmentedControl.active {
+        background-color: #4E717F ;
+}
+
+@media (min-width:411px){
+    .segmentedControl{
+        width:110px;;
+    }
+}
+
+@media (min-width:550px){
+    .segmentedControl{
+        width:150px;
+    }
+}
+
+@media (min-width:768px){
+    .segmentedControl{
+        width:200px;
+        font-size: 1.5em;
+    }
+}
+
+@media (min-width:1024px){
+    .segmentedControl{
+        width:230px;
+        font-size: 2em;
+        padding: 15px;
+    }
+}
+
+
+

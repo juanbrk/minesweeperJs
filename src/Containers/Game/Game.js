@@ -476,9 +476,9 @@ class game extends PureComponent {
 
     //Method that will set the selected Difficulty from the user to the state difficulty, and using a setState callback, initialize the
     // board.
-    changeDifficulty(e) {
+    changeDifficulty(dif) {
 
-        let difficultySelected = e.target.value;
+        let difficultySelected = dif;
         let heightForDifficulty = null;
         let widthForDifficulty = null;
         let minesForDifficulty = null;
@@ -609,13 +609,13 @@ class game extends PureComponent {
      * Handles POST connections with the server and shows/hides the spinner. 
      */
     saveGameHandler = () => {
-        
+
         //show spinner
-        this.setState({loading:true});
+        this.setState({ loading: true });
 
         const game = {
             ended: this.state.endTime,
-            height:this.state.height,
+            height: this.state.height,
             level: this.state.difficulty,
             minesLeft: this.state.mineCount,
             moves: this.state.movesCount,
@@ -629,18 +629,18 @@ class game extends PureComponent {
         axios.post("/games.json", game)
             .then(response => {
                 //hide spinner and Modal
-               this.setState({
-                   loading:false,
-                   finished:false
+                this.setState({
+                    loading: false,
+                    finished: false
                 });
 
                 alert("Game saved");
             })
             .catch(error => {
                 //hide spinner
-               this.setState({loading:false});
+                this.setState({ loading: false });
 
-               alert("Something went wrong, please try again")
+                alert("Something went wrong, please try again")
             });
     }
     //////////////////////////////////////////////////////////////////// render
@@ -658,34 +658,35 @@ class game extends PureComponent {
             cancel={this.handleModalClosed}
             title={"Your last game stats:"}
             showSave showCancel />
-        
+
         if (this.state.loading) {
             gameSummary = <Spinner />;
         }
 
         return (
-            <div className={classes.game}>
-                <div className={classes.gameInfo}>
-                    <span className={classes.gameStatus}>
-                        {this.state.gameStatus}
-                    </span>
+            <div className="container">
+                <div>
                     <Menu
                         mineCount={this.state.mineCount}
+                        gameStatus={this.state.gameStatus}
                         restartClick={this.restartClickHandler}
                         difficultyChangedHandler={(e) => this.changeDifficulty(e)} />
                 </div>
                 <Modal
                     show={this.state.finished}
                     close={this.handleModalClosed}>
-                        {gameSummary}
+                    {gameSummary}
                 </Modal>
-                <Board
-                    data={boardData}
-                    gameStatus={this.state.gameStatus}
-                    onStatusChange={(e) => this.handleStatusChange(e)}
-                    tileClicked={this.tileClickedHandler}
-                    tileFlagged={this.rightClickHandler}
-                />
+                <div className={classes.board}>
+                    <Board
+                        data={boardData}
+                        gameStatus={this.state.gameStatus}
+                        onStatusChange={(e) => this.handleStatusChange(e)}
+                        tileClicked={this.tileClickedHandler}
+                        tileFlagged={this.rightClickHandler}
+                    />
+                </div>
+
             </div>
         );
 

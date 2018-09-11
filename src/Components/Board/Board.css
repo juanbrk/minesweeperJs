@@ -1,9 +1,12 @@
 .boardRow{
     clear:both;
-    display:inline-table;
+    display:flex;
+    flex-flow: row  ;
+    align-content: space-between;
+    justify-content: center;
     content: "";
-    height: 20px;
-    width: 60%;
+    height: 35px;
+    width: 100%;
     margin-left: 10%;
     margin-right: 10%;
 }
@@ -14,13 +17,35 @@
     flex-wrap:wrap;
     width:100%;
     align-items: center;
-    margin-left: 10%;
+    margin: 0 0;
+} 
+
+@media (min-width:411px){
+  .boardRow{
+      height:41px;
+  }
+}
+
+@media (min-width:550px){
+    .boardRow{
+        height: 45px;
+    }
+    
 
 }
 
-.info {
-    display: block;
-    margin-top: 15px;
-  }
+@media (min-width: 768px){
+    .boardRow{
+        height: 60px;
+    }
+}
+
+
+@media (min-width:1024px){
+    .boardRow{
+        height: 85px;
+    }
+}
+
 
 

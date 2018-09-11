@@ -1,33 +1,83 @@
-.menu{
-    height:33px;
+
+
+.container{
+    width: 100%;
+    margin: 10px 10px;
+    display: flex;
+    flex-flow: column wrap;
+}
+.buttons{
+    position: relative;
     width: 80%;
-    line-height:33px;
-    margin:10px 20px 10px 20px;
-    padding:10px 20px 10px 20px;
+    background-color:#3c98c0;
+    display: flex;
+    flex-flow: row nowrap;
+    margin: 0 auto 10px;
+    max-width: 600px;
+    min-width: 260px;
 }
 
-.restart {
-    float:left;
-    padding:8px 15px;
-    margin: 5px 5px 5px 5px;
-    background-color:gray;
-    border:none;
-    border-radius:5px;
-    color:#fff;
-    font-weight:700;
-    font-size:14px;
-    cursor:pointer
-   }
-
-   .mineCount {
-    margin:5px 5px 5px 5px;
-    font-size: 16px;
+.select{
+    margin-bottom: 2px;
     text-align: center;
-    font-weight: 500;
-   }
+    font-size: 1.05em;
+    font-family: 'Nunito Sans', sans-serif;
+}
 
-   .dropdownSelect {
-       
-   }
+.gameInfo{
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+    font-size: 1em;
+    margin-top: 7px;
+}
+
+@media (min-width:411px){
+    .select{
+        margin-bottom: 5px;
+        font-size: 1.2em;
+    }
+
+    .gameInfo{
+        font-size: 1.2em;
+        margin-top: 7px;
+    }
+}
+
+@media (min-width:550px){
+    .buttons{
+        width: 60%;
+    }
+    
+
+}
+
+@media (min-width:768px){
+    .gameInfo{
+        font-size: 1.6em;
+        margin-top: 13px;
+    }
+    .select{
+        margin-bottom: 15px;
+        font-size: 2em;
+    }
+
+}
+
+@media (min-width:1024px){
+    .gameInfo{
+        font-size: 2.3em;
+        margin-top: 13px;
+    }
+
+    .select{
+        margin-bottom: 15px;
+        font-size: 2em;
+    }
+}
 
 
+
+   
+
+   

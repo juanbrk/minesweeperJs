@@ -1,8 +1,8 @@
 import React from 'react';
 import classes from './BoardSetup.css';
 
-const boardSetup = (props) => (
-    <h2 className={classes.title} >Esta es la pagina de configuracion del tablero</h2>
+const boardSetup = () => (
+    <p className={classes.title}>This page is for board setup </p>
 );
 
 export default boardSetup;
