@@ -670,7 +670,8 @@ class game extends PureComponent {
                         mineCount={this.state.mineCount}
                         gameStatus={this.state.gameStatus}
                         restartClick={this.restartClickHandler}
-                        difficultyChangedHandler={(e) => this.changeDifficulty(e)} />
+                        difficultyChangedHandler={(e) => this.changeDifficulty(e)}
+                        selectedDifficulty={this.state.difficulty} />
                 </div>
                 <Modal
                     show={this.state.finished}
