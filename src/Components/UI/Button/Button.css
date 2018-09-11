@@ -39,6 +39,7 @@
       width: 100px; 
       font-family: 'Encode Sans Condensed', sans-serif;
       font-size: 1.2em;
+      text-transform: capitalize;
 }
 
 .segmentedControl:hover,
