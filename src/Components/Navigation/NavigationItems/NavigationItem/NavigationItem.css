@@ -49,5 +49,11 @@
     background-color: #5B7F4C  ;
     border-bottom:  4px solid #BECCB8;
     color: white;
+    }
 }
+
+@media(min-width:768px){
+    .navigationItem a{
+        font-size: 1.3em;
+    }
 }
