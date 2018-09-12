@@ -49,6 +49,21 @@ class game extends PureComponent {
         history: null
     }
 
+
+    //////////////////////////////////////////////////////////////////////////////////////////// Lifecycle hooks
+
+    // When component is mounted check if theres an unfinishedGame to load and present to the user
+    componentDidMount() {
+
+        // If user didnt play yet, check for unfinished game
+        if (this.state.movesCount === 0) {
+
+            //TO DO check for unfinished game
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////// class methods
+
     // Method that creates a board according to the difficulty selected by the user. Will be passed down to Board as a prop.
     // mineCount, height and width will be set inside this method. If not difficulty has been chosen yet, it will return null
     initializeBoard() {
@@ -58,17 +73,20 @@ class game extends PureComponent {
             let height = this.state.height;
             let width = this.state.width;
             let mines = this.state.mineCount;
+            let history = [];
             //Render board 
             const emptyTiles = this.createEmptyArray(height, width);
             const populatedBoardWithMines = this.populateBoardWithMines(emptyTiles, height, width, mines);
             const populatedBoardWithNeighbours = this.populateTilesWithNeighbours(populatedBoardWithMines, height, width);
 
-            //Update state with new values
+            //Update state with new values 
             this.setState({
                 boardData: populatedBoardWithNeighbours,
                 gameStatus: GAMESTATUSES.notInitialized,
-                history: []
+                history: history
             });
+
+
 
         } else {
             //If this.state.difficulty === null
@@ -261,7 +279,8 @@ class game extends PureComponent {
                 this.setState({
                     gameStatus: GAMESTATUSES.won,
                     endTime: new Date().toString(),
-                    finished: true
+                    finished: true,
+                    history: null
                 });
             }
 
@@ -341,6 +360,9 @@ class game extends PureComponent {
         // Obtain history array to update the state with it later
         let history = this.state.history;
 
+        // Check if first move of the user
+        const isFirstMove = this.state.movesCount === 0;
+
         //Check if clicked tile has not been revealed or flagged yet, if revealed do nothing. 
         if (!clickedTile.isRevealed && !clickedTile.isFlagged && !(this.state.gameStatus === GAMESTATUSES.won)) {
 
@@ -351,7 +373,7 @@ class game extends PureComponent {
                 alert("There is a mine, you explode! and lose btw");
 
                 //Check if player looses on first move, if so set endtime === startTime
-                if (this.state.movesCount === 0) {
+                if (isFirstMove) {
 
                     //Every time user looses history will be null and erased from server
 
@@ -397,35 +419,39 @@ class game extends PureComponent {
                     const currentBoard = [...this.state.boardData];
                     const updatedData = [...this.revealEmpty(x, y, currentBoard)];
 
+                    // Update history array with updatedData
+                    history = history.concat({
+                        board: updatedData
+                    });
+
                     //Check if this is the first click, to start clocking gameDuration 
-                    if (this.state.movesCount === 0) {
+                    if (isFirstMove) {
 
-
+                        // update state and save history to server with a callback
                         this.setState(prevState => {
                             return {
                                 boardData: updatedData,
                                 gameStatus: status,
                                 movesCount: prevState.movesCount + 1,
                                 startTime: new Date().toString(),
-                                history: history.concat({
-                                    board:updatedData
-                                })
+                                history: history
                             }
-                        });
+                        },
+                            /*DONT KNOW IF THIS IS RECCOMENDED OR NOT, COULDNT FIND ANY INFO THAT HELPS*/
+                            () => {
+                                this.postHistoryToServer(history);
+                            });
                     } else {
 
                         //if not the first click just update state with status, movesCount, gameStatus and history
-
                         this.setState(prevState => {
                             return {
                                 boardData: updatedData,
                                 gameStatus: status,
                                 movesCount: prevState.movesCount + 1,
-                                history: history.concat({
-                                    board:updatedData
-                                })
+                                history: history
                             }
-                        });
+                        }, this.postHistoryToServer(history));
                     }
 
 
@@ -441,18 +467,23 @@ class game extends PureComponent {
                     // Assign the position of the revealed tile in the new array to the updated tile
                     updatedBoardData[x][y] = { ...clickedTile };
 
+                    // Update history array with updatedBoardData
+                    history = history.concat({
+                        board: updatedBoardData
+                    });
+
                     //Check if this is the first click, to start clocking gameDuration
-                    if (this.state.movesCount === 0) {
+                    if (isFirstMove) {
                         this.setState(prevState => {
                             return {
                                 boardData: updatedBoardData,
                                 gameStatus: status,
                                 movesCount: prevState.movesCount + 1,
                                 startTime: new Date().toString(),
-                                history: history.concat({
-                                    board:updatedBoardData
-                                })
+                                history: history
                             }
+                        }, () => {
+                            this.postHistoryToServer(history);
                         });
                     } else {
 
@@ -463,10 +494,10 @@ class game extends PureComponent {
                                 boardData: updatedBoardData,
                                 gameStatus: status,
                                 movesCount: prevState.movesCount + 1,
-                                history: history.concat({
-                                    board:updatedBoardData
-                                })
+                                history: history
                             }
+                        }, () => {
+                            this.postHistoryToServer(history);
                         });
                     }
 
@@ -489,6 +520,7 @@ class game extends PureComponent {
         });
 
     }
+
 
     //Method that will set the selected Difficulty from the user to the state difficulty, and using a setState callback, initialize the
     // board.
@@ -566,25 +598,30 @@ class game extends PureComponent {
             const updatedData = [...this.state.boardData];
             updatedData[x][y] = { ...clickedTile };
 
+            //update history
+            history = history.concat({
+                board: updatedData
+            });
+
             // Update state with new information 
 
             if (minesLeft === 0) {
 
-                //If user flagged possible last tile containing a mine, check if won with a setState callback to checkIfWin()
+                // If user flagged possible last tile containing a mine, check if won with a setState callback to checkIfWin()
+                // and save history to server in the same callback 
                 this.setState(prevState => {
                     return {
                         boardData: updatedData,
                         mineCount: minesLeft,
                         movesCount: prevState.movesCount + 1,
-                        history: history.concat({
-                            board:updatedData
-                        })
-
+                        history: history
                     }
 
                 },
                     () => {
-                        this.checkIfWin(this.state.mineCount)
+                        (() => { this.checkIfWin(this.state.mineCount) })();
+                        (() => { this.postHistoryToServer })()
+
                     });
             } else {
 
@@ -600,10 +637,10 @@ class game extends PureComponent {
                             mineCount: minesLeft,
                             movesCount: prevState.movesCount + 1,
                             startTime: new Date().toString(),
-                            history: history.concat({
-                                board:updatedData
-                            })
+                            history: history
                         }
+                    }, () => {
+                        this.postHistoryToServer(history);
                     });
 
                 } else {
@@ -614,10 +651,10 @@ class game extends PureComponent {
                             boardData: updatedData,
                             mineCount: minesLeft,
                             movesCount: prevState.movesCount + 1,
-                            history: history.concat({
-                                board:updatedData
-                            })
+                            history: history
                         }
+                    }, () => {
+                        this.postHistoryToServer(history);
                     });
                 }
             }
@@ -631,10 +668,16 @@ class game extends PureComponent {
 
     // If modal is closed, erase history from state and  server
     handleModalClosed() {
-        this.setState({ 
+
+        //Update state
+        this.setState({
             finished: false,
-            history:null
-        })
+            history: null
+        });
+
+        // erase finishedGames from server
+        this.eraseHistoryFromServer();
+
     }
 
     ///////////////////////////////////////////////////////////////////// server handling
@@ -676,7 +719,39 @@ class game extends PureComponent {
 
                 alert("Something went wrong, please try again")
             });
+
+        //erase history from firebase
+        this.eraseHistoryFromServer();
     }
+
+    /**
+     * Erases the node unfinishedgames from firebase. Triggered when the user finishes a game
+     */
+    eraseHistoryFromServer() {
+        axios.delete("/unfinishedgames.json")
+            .then(response => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+
+    /**
+     * Posts history to server on the unfinishedGames node to keep track of every movement the user
+     * does. So in case the page reloads, progress from the lost game can be recovered
+     */
+    postHistoryToServer(history) {
+        axios.post("/unfinishedgames.json", history)
+            .then(response => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+
+
     //////////////////////////////////////////////////////////////////// render
 
     render() {
