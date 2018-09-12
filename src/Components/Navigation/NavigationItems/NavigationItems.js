@@ -4,8 +4,7 @@ import classes from './NavigationItems.css';
 const navigationItems = (props) => (
     <ul className={classes.navigationItems}>
         <NavigationItem
-            link={"/"}
-            active> Play
+            link={"/"}> Play
         </NavigationItem>
         <NavigationItem
             link={"/game-setup"}> Game Setup

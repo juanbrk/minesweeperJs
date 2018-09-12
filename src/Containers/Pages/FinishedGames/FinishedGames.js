@@ -62,11 +62,8 @@ class FinishedGames extends Component {
             postClicked: true,
             gameSelected: gameFetched
         });
-
-
-
-
     }
+
 
     render() {
 
@@ -82,6 +79,10 @@ class FinishedGames extends Component {
             return <GamePost key={key} title={value.status} clicked={() => this.handleGameClicked(key)} />
 
         }) : null;
+
+        /**
+         * TODO gamePost should scroll horizontally for mobile screens not vertically
+         */
 
         // Determine if show gamePosts  or spinner according if there's a 
         // connection with the server going on
@@ -101,6 +102,7 @@ class FinishedGames extends Component {
             <React.Fragment>
 
                 <h2 className={classes.title}>Take a look at your finished games</h2>
+                <h3 className={classes.subtitle}>Click on any game to see how you performed</h3>
                 <Modal
                     show={this.state.postClicked}
                     close={this.handleModalClosed}>  {gameSummary}

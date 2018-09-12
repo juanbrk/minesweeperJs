@@ -1,0 +1,6 @@
+Futuras versiones
+-Scrolling horizontal para mobiles en la pantalla finished games
+-History para volver jugadas hacia atras
+-Game setup page: Permite configurar heigth & width y minesCount para cada
+dificultad
+-Board setup: Permite cambiar el look del tablero y las minas, banderas etc 
