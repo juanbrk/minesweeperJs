@@ -75,5 +75,13 @@
     }
 }
 
+@media (min-width:1266px){
+    .segmentedControl{
+        width:230px;
+        font-size: 1.4em;
+        padding: 8px;
+    }
+}
+
 
 

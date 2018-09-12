@@ -3,4 +3,6 @@ Futuras versiones
 -History para volver jugadas hacia atras
 -Game setup page: Permite configurar heigth & width y minesCount para cada
 dificultad
--Board setup: Permite cambiar el look del tablero y las minas, banderas etc 
+-Board setup: Permite cambiar el look del tablero y las minas, banderas etc
+-Soporte multiusuario 
+- Usar sass en lugar de puro css

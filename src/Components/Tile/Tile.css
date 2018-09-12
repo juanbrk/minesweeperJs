@@ -72,4 +72,14 @@
       }
 }
 
+@media (min-width:1266px){
+    .tile{
+        height: 40px;
+        width: 40px;
+        line-height: 40px;
+        margin: unset 5px;
+        font-size: 25px;
+      }
+}
+
 

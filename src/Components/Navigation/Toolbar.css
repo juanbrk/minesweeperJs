@@ -53,3 +53,9 @@
         height:80px;
     }
 }
+
+@media (min-width:1266px){
+    .toolbar{
+        height:55px;
+    }
+}

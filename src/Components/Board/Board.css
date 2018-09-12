@@ -47,5 +47,11 @@
     }
 }
 
+@media (min-width:1266px){
+    .boardRow{
+        height: 45px;
+    }
+}
+
 
 
