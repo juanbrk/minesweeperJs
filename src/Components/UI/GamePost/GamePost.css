@@ -9,6 +9,16 @@
     cursor: pointer;
 }
 
+.info span{
+    font-family:  'Noto Sans KR', sans-serif;
+    text-transform: uppercase;
+}
+
+.title{
+    font-family: 'Abel', sans-serif;
+    font-size:1.4em;
+}
+
 .gamePost:hover,
 .gamePost:active {
     background-color: #C0DDF5;

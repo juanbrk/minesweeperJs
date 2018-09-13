@@ -5,9 +5,9 @@ const gamePost = (props) => (
     <article 
         className={classes.gamePost}
         onClick={props.clicked}>
-        <h1>{props.title}</h1>
-        <div className="Info">
-            <span>Date to be here</span>
+        <h1 className={classes.title}>{props.title}</h1>
+        <div className={classes.info}>
+            <span>{props.date}</span>
         </div>
     </article>
 );

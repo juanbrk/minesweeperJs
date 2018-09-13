@@ -5,7 +5,7 @@ import classes from './FinishedGames.css';
 import Modal from '../../../Components/UI/Modal/Modal';
 import GameSummary from '../../../Components/GameSummary/GameSummary';
 import Spinner from '../../../Components/UI/Spinner/Spinner';
-import gamePost from '../../../Components/UI/GamePost/GamePost';
+import moment from 'moment';
 
 /**
  * Component that will show finished games retrieved from firebase and allows user to click
@@ -34,9 +34,9 @@ class FinishedGames extends Component {
                 })
             }).catch(error => {
                 //hide spinner
-               this.setState({loading:false});
+                this.setState({ loading: false });
 
-               alert("Something went wrong, please try again")
+                alert("Something went wrong, please try again")
             });
     }
 
@@ -74,9 +74,13 @@ class FinishedGames extends Component {
         // Check if games array had been populated yet. If so, iterate over and return gamePosts
         // else return null. (ternary operator)
         let gamePosts = this.state.games !== null ? games.map(([key, value]) => {
-
+            const date = moment(value.started).format('ll');
             // Access to the value object {} and retrieve data to render
-            return <GamePost key={key} title={value.status} clicked={() => this.handleGameClicked(key)} />
+            return <GamePost
+                key={key}
+                title={value.status}
+                clicked={() => this.handleGameClicked(key)}
+                date={date} />
 
         }) : null;
 
