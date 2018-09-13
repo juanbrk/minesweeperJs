@@ -533,7 +533,7 @@ class game extends PureComponent {
 
 
     //Method that will set the selected Difficulty from the user to the state difficulty, and using a setState callback, initialize the
-    // board.
+    // board. Also if theres a pending game, erase it from server. 
     changeDifficulty(dif) {
 
         let difficultySelected = dif;
@@ -573,7 +573,13 @@ class game extends PureComponent {
                 movesCount: 0
             }, () => {
                 this.initializeBoard();
+                
+                // if theres a pending game, erase it from server. 
+                if (this.state.pendingGame){
+                    this.eraseHistoryFromServer()
+                }
             });
+        
     }
 
     // handles right clicks to flag or unflag a tile. Updates the counter of remaining mines and the 
