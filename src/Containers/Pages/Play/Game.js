@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
-import Board from '../../Components/Board/Board';
+import Board from '../../../Components/Board/Board';
 import classes from './Game.css';
-import Menu from '../../Components/Menu/Menu';
-import Modal from '../../Components/UI/Modal/Modal';
-import GameSummary from '../../Components/GameSummary/GameSummary';
+import Menu from '../../../Components/Menu/Menu';
+import Modal from '../../../Components/UI/Modal/Modal';
+import GameSummary from '../../../Components/GameSummary/GameSummary';
 import axios from 'axios';
-import Spinner from '../../Components/UI/Spinner/Spinner';
+import Spinner from '../../../Components/UI/Spinner/Spinner';
 
 const GAMESTATUSES = {
     notInitialized: "Make your first move",
@@ -69,12 +69,12 @@ class game extends PureComponent {
                         }, () => {
                             // TODO prompt user about resuming the game 
 
-                            //WTF this is super clumsy, should find a better way to persist board and retrieve it
+                            //this is super clumsy, should find a better way to persist board and retrieve it
                             // maybe redux?
 
                             //If user wants to resume the game, fetch data and update
                             const responseData = Object.entries(response.data);
-                            const data = responseData.slice(responseData.length-1)[0][1];
+                            const data = responseData.slice(responseData.length - 1)[0][1];
                             this.setState(data)
 
                             /**
@@ -96,7 +96,7 @@ class game extends PureComponent {
 
     //////////////////////////////////////////////////////////////////////////////////////////// class methods
 
-    // Method that creates a board according to the difficulty selected by the user. Will be passed down to Board as a prop.
+    // Method that creates a board depending on the difficulty selected by the user. Will be passed down to Board as a prop.
     // mineCount, height and width will be set inside this method. If not difficulty has been chosen yet, it will return null
     initializeBoard() {
 
@@ -105,7 +105,7 @@ class game extends PureComponent {
             let height = this.state.height;
             let width = this.state.width;
             let mines = this.state.mineCount;
-            
+
             //Render board 
             const emptyTiles = this.createEmptyArray(height, width);
             const populatedBoardWithMines = this.populateBoardWithMines(emptyTiles, height, width, mines);
@@ -125,7 +125,15 @@ class game extends PureComponent {
         }
     }
 
-    //Creates a 2D array with empty "tiles" objects in it. Every tile will have its .isEmpty property set to true They will be loaded with info later. 
+
+    /**
+    * Creates a 2D array with empty "tiles" objects in it. Every tile will have its .isEmpty property set to true They
+    *  will be loaded with info later. 
+    * @param height number of rows the returned array will have
+    * @param width number of columns the returned array will have
+    * @returns an empty[height][width] array  
+    */
+    //
     createEmptyArray(height, width) {
         let emptyTilesArr = [];
         for (let i = 0; i < height; i++) {
@@ -149,10 +157,10 @@ class game extends PureComponent {
     /**
     * Populates board with mines. Every tile that will hold a mine will have its .containsMine set to true
     * and its .isEmpty property set to false
-    * @param tilesArr
-    * @param height
-    * @param width
-    * @param mines
+    * @param tilesArr empty 2D array
+    * @param height #of rows the returned array will store
+    * @param width # of columns the returned array will store
+    * @param mines # of mines to be planted on the returned array
     * @returns tilesArr populated with as many mines as were passed in mines   
     */
     populateBoardWithMines(tilesArr, height, width, mines) {
@@ -180,9 +188,16 @@ class game extends PureComponent {
         return (tilesArr);
     }
 
-    // Method that gets the amount of mines that a tile's neighbours have and returns a new (updated) array with information on every 
-    // tile and its neighbouring tiles.  Every mine with neighbouring mines will have its .neighbour property set to !=== 0 and its
-    // .isEmpty property set to false
+
+    /**
+     * gets the amount of mines that a tile's neighbours store and returns a new  array with information on every
+     * tile and its neighbouring tiles. Every mine with neighbouring mines will have its .neighbour property !=== 0 
+     * and its .isEmpty property set to false
+     * @param data array that will be populated with every tile's neighbours information
+     * @param height #of rows the returned array will store
+     * @param width # of columns the returned array will store
+     * @returns an array where every tile stores the # of mines that its neighbouring tiles contain
+     */
     populateTilesWithNeighbours(data, height, width) {
 
         //Create a new copy of the original array to avoid reference issues
@@ -214,7 +229,14 @@ class game extends PureComponent {
         return (updatedData);
     }
 
-    // looks for neighbouring tiles taking into account index restrictions and returns them as an array of tiles
+    /**
+     * looks for neighbouring tiles taking into account index restrictions and returns them as an array of tiles
+     * @param row x position of the tile in the 2D data array for which we want to find its neighbours
+     * @param col y position of the tile in the 2D data array for which we want to find its neighbours 
+     * @param data 2D array with every tile on the board where we want to find surrounding mines for tile in position [row][data] 
+     * @returns an array of tiles that surround the tile in the position data[row][col]
+     */
+    // 
     traverseBoard(row, col, data) {
         const el = [];
         //up
@@ -252,7 +274,11 @@ class game extends PureComponent {
         return el;
     }
 
-    //Iterates over the board and places each mine's position inside an array. 
+    /**
+     * Iterates over the board and places each mine's position inside an array.
+     * @param board 2D array where the mines are to be found
+     * @returns a 2D array  containing the positions of every mine in the board array
+     */
     getMines(board) {
         /*
             Not the best solution. Have yet to find a solution to get where mines are planted at and updating state inside populateBoard()
@@ -272,7 +298,11 @@ class game extends PureComponent {
         return minesAt;
     }
 
-    //Iterates over the board and places each flag inside an array. 
+    /**
+     * Iterates over the board and places each flag inside an array. 
+     * @param board 2D array where the flags are to be found
+     * @returns a 2D array  containing the positions of every flag in the board array
+     */
     getFlags(board) {
         /*
             If tiles properties implemented with enum, getMines() and getFlags() could be somehow be joined into a single method. 
@@ -288,7 +318,10 @@ class game extends PureComponent {
         return flagsAt;
     }
 
-    //Check game progress and returns a boolean: true if win, false if not.  
+    /**
+     * Check game progress to validate if game is ended and player won
+     * @returns  a boolean that is true if the user had won, false otherwise
+     */
     checkIfWin() {
 
         //No need to create a new array, Ill just reference the one inside state
@@ -317,7 +350,14 @@ class game extends PureComponent {
         }
     }
 
-    // Method that reveals the content of every tile on the board and updates the state with new boardData. Called when Game over or winning. 
+
+
+    // 
+    /**
+     * reveals the content of every tile on the board and updates the state with the revealed board. Called when
+     *  Game over or ended because of a win.
+     * @returns a 2D array with every with its. isRevealed property set to true 
+     */
     revealBoardContent = () => {
 
         //Create a new array from the currentBoardData from state
@@ -355,7 +395,6 @@ class game extends PureComponent {
             //Check if empty. If flagged or already revealed, ommit it
             if (!neighbouringTile.isFlagged && !neighbouringTile.isRevealed && !neighbouringTile.containsMine) {
 
-                //vacia o vecino
                 // Check if not empty
                 if (!neighbouringTile.isEmpty) {
 
@@ -367,8 +406,6 @@ class game extends PureComponent {
                 }
             }
         });
-
-        //Update board before 
         return board;
     }
 
@@ -377,11 +414,13 @@ class game extends PureComponent {
 
     //---------------------------------------------------- Handler methods
 
-    /*
-        handles tile click. Accepts 2D[x][y] indexes to reveal the tile that was clicked. This reveal will be done according to the content
-        of the mine which can be a bomb, or not. If not a bomb and it is not empty, it shows the number of neighbouring tiles containing 
-        mines. If not a bomb and empty, it starts a recursive function to reveal all empty neighbouring tiles and its neighbouring tiles
-        containing mines
+    /**
+     *handles tile click. Accepts 2D[x][y] indexes to reveal the tile that was clicked. This reveal will be done depending on the content
+     *of the mine which can be a bomb, or not. If not a bomb and it is not empty, it shows the number of neighbouring tiles containing 
+     *mines. If not a bomb and empty, it starts a recursive function to reveal all empty neighbouring tiles and its neighbouring tiles
+     *containing mines
+     * @param x row of the clicked tile inside 2D array that is the board
+     * @param y column where the clicked tile is located at inside 2D array that is the board
      */
     tileClickedHandler = (x, y) => {
         //Obtain the clicked object, this will allow us to update state in a immutable way later
@@ -518,6 +557,10 @@ class game extends PureComponent {
         }
     }
 
+    /**
+     * Handles clicks on restart button. Updates the state with a new board where every tile is not revealed and with
+     * mines located in different positions than the previous
+     */
     restartClickHandler = () => {
         const newData = this.initializeBoard(this.state.height, this.state.width, this.state.mineCount);
         this.setState({
@@ -532,8 +575,11 @@ class game extends PureComponent {
     }
 
 
-    //Method that will set the selected Difficulty from the user to the state difficulty, and using a setState callback, initialize the
-    // board. Also if theres a pending game, erase it from server. 
+    /**
+     * Method that will update state.difficulty to the  selected Difficulty from the user and using a setState callback, initialize the
+     * board. Also if theres a pending game, erase it from server. 
+     * @param dif user selected difficulty
+     */
     changeDifficulty(dif) {
 
         let difficultySelected = dif;
@@ -541,7 +587,7 @@ class game extends PureComponent {
         let widthForDifficulty = null;
         let minesForDifficulty = null;
 
-        // Set the width,height and mine count of the board according to the difficulty selected. 
+        // Set the width,height and mine count of the board depending on the difficulty selected. 
         switch (difficultySelected) {
             //Hardcoded for the moment, will be different in the future
             case "beginner":
@@ -573,17 +619,24 @@ class game extends PureComponent {
                 movesCount: 0
             }, () => {
                 this.initializeBoard();
-                
+
                 // if theres a pending game, erase it from server. 
-                if (this.state.pendingGame){
+                if (this.state.pendingGame) {
                     this.eraseHistoryFromServer()
                 }
             });
-        
+
     }
 
-    // handles right clicks to flag or unflag a tile. Updates the counter of remaining mines and the 
-    // board state with flagged/unflagged tiles
+    
+    
+    /**
+     * handles right clicks to flag or unflag a tile. Updates the counter of remaining mines and the 
+     * board state with flagged/unflagged tiles
+     * @param {*} event event that triggered this method call
+     * @param {*} x row where the clicked tile is located at inside the 2D board aray
+     * @param {*} y column where the clicked tile is located at inside the 2D board aray
+     */
     rightClickHandler(event, x, y) {
         event.preventDefault();  // prevents default behaviour such as right click
         const clickedTile = { ...this.state.boardData[x][y] }
@@ -666,12 +719,17 @@ class game extends PureComponent {
         }
     }
 
-    //Method to handle status change of the game when clicking tiles from Board.
+    /**
+     * Method to handle status change of the game when clicking tiles from Board.
+     * @param {*} newStatus updated game progress to be displayed on the menu
+     */
     handleStatusChange(newStatus) {
         this.setState({ gameStatus: newStatus });
     }
 
-    // If modal is closed, erase history from   server
+    /**
+     * Handles click for closing displayed modal. when closed, also erase history from   server
+     */
     handleModalClosed() {
 
         //Update state
@@ -705,8 +763,6 @@ class game extends PureComponent {
             width: this.state.width,
         }
 
-
-        //TODO configure games to sort properties in a pre-defined way to enhance UX
         axios.post("/games.json", game)
             .then(response => {
                 //hide spinner and Modal
@@ -746,17 +802,14 @@ class game extends PureComponent {
      * does. So in case the page reloads, progress from the lost game can be recovered
      * 
      * TODO use redux instead of server-saving
+     * 
+     * @param {*} state state that will be appended to server for later retrieval
      */
     postHistoryToServer(state) {
-
-        // I should actually update the node with the last game state instead of posting new
-        // objects.
         axios.post("/unfinishedgames.json", state)
             .then(response => {
-                console.log(response);
             })
             .catch(error => {
-                console.log(error);
             });
     }
 
@@ -764,12 +817,11 @@ class game extends PureComponent {
     //////////////////////////////////////////////////////////////////// render
 
     render() {
-        // dynamically rendering the board according to if the difficulty has been selected yet or not 
+        // dynamically rendering the board  if the difficulty has been selected yet or not 
         // this will later be passed on to <Board> as prop
         let boardData = this.state.difficulty || this.state ? this.state.boardData : null;
 
-        // Determine if show GameSummary  or spinner according if there's a 
-        // connection with the server going on
+        // Determine to whether show <GameSummary>  or <Spinner> depending if there's a  connection with the server going on
         let gameSummary = <GameSummary
             gameResults={this.state}
             save={this.saveGameHandler}
@@ -814,3 +866,5 @@ class game extends PureComponent {
 };
 
 export default game;
+
+

@@ -1,5 +1,6 @@
 import React from 'react';
 import classes from './Button.css';
+import PropTypes from 'prop-types';
 
 /*
     Component for reusing buttons. Classes can be asigned dynamically with props
@@ -14,3 +15,8 @@ const button = (props) => (
 );
 
 export default button;
+
+button.propTypes ={
+    btnType: PropTypes.string,
+    clicked: PropTypes.func
+}

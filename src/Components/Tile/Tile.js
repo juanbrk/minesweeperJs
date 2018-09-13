@@ -41,9 +41,10 @@ tile.propTypes = {
     isRevealed: PropTypes.bool,
     isFlagged: PropTypes.bool,
     neighbour: PropTypes.number,
-    // Is empty is needed to specify if none of the 8 neighbouring tiles contains a mine
     isEmpty: PropTypes.bool,
-    cMenu: PropTypes.func
+    cMenu: PropTypes.func,
+    clicked: PropTypes.func,
+
 }
 
 function getContent(props, content) {

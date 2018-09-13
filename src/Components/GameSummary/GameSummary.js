@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Button from '../UI/Button/Button';
 import classes from './GameSummary.css';
+import PropTypes from 'prop-types';
 
 /*
     Component that will hold the summary of the played game with stats
@@ -89,3 +90,14 @@ class GameSummary extends Component {
 }
 
 export default GameSummary;
+
+GameSummary.propTypes = {
+    gameResults: PropTypes.object,
+    save: PropTypes.func,
+    cancel: PropTypes.func,
+    title: PropTypes.string,
+    showSave: PropTypes.bool,
+    showCancel: PropTypes.bool,
+    showContinue: PropTypes.bool
+
+}

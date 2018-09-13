@@ -14,7 +14,6 @@
     width: 30px;
     line-height: 30px;
     text-align: center;
-    cursor: pointer;
     border-radius: 5px;
     color: #fff;
     font-weight: 600;
@@ -22,6 +21,7 @@
 
 .hidden {
     background: #0a0624;
+    cursor: pointer;
   }
 
   .isFlag,

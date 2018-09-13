@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Button from '../UI/Button/Button';
 import classes from './Menu.css';
+import PropTypes from 'prop-types';
 
 //Difficulties that will be rendered 
 export const difficulties = {
@@ -48,3 +49,11 @@ class Menu extends Component {
 }
 
 export default Menu;
+
+Menu.propTypes = {
+    mineCount: PropTypes.number,
+    gameStatus: PropTypes.string,
+    restartClick: PropTypes.func,
+    difficultyChangedHandler: PropTypes.func,
+    selectedDifficulty: PropTypes.string
+}

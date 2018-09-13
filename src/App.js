@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import Game from './Containers/Game/Game';
+import Game from './Containers/Pages/Play/Game';
 import GameSetup from './Containers/Pages/GameSetup/GameSetup';
 import FinishedGames from './Containers/Pages/FinishedGames/FinishedGames';
 import BoardSetup from './Containers/Pages/BoardSetup/BoardSetup';
@@ -9,31 +9,7 @@ import { Route, Switch } from 'react-router-dom'
 // import that will allow routing
 
 class App extends Component {
-  constructor(props) {
-    super(props)
 
-    this.handleDifficultyChange = this.handleDifficultyChange.bind(this);
-  }
-
-  state = {
-    hasDifficultyChanged: false,
-    newHeight: null,
-    newWidth: null,
-    newMineCount: null,
-    //modifiedDifficulty specifies which level has been modified
-    modifiedDifficulty: null
-  }
-
-  //Callback methdo passed as prop to <Route ... GameStatus, will modify a specific difficulty for the game
-  handleDifficultyChange(height, width, mines, difficulty) {
-    this.setState({
-      hasDifficultyChanged: true,
-      newHeight: height,
-      newWidth: width,
-      newMineCount: mines,
-      modifiedDifficulty: difficulty
-    })
-  }
 
   render() {
     return (
@@ -41,14 +17,8 @@ class App extends Component {
       <div className={"App"}>
         <Layout>
           <Switch>
-            <Route
-              exact path='/'
-              component={Game}
-            />
-            <Route
-              path='/game-setup'
-              render={() => <GameSetup difficultyChanged={this.handleDifficultyChange} />}
-            />
+            <Route exact path='/'component={Game}/>
+            <Route path='/game-setup' component={GameSetup}/>
             <Route path='/board-setup' component={BoardSetup} />
             <Route path='/finished-games' component={FinishedGames} />
           </Switch>

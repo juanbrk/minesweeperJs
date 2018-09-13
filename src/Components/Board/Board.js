@@ -10,6 +10,7 @@ Container that renders a given number of rows containing each one a number of ti
 PureComponent that comes with built-in checks for components that should update instead of doing it manually
 It is a stateful component since it stores the value of every tile, result of game, game status, remaining mines
 */
+
 class board extends PureComponent {
     constructor(props) {
         super(props);
@@ -20,7 +21,10 @@ class board extends PureComponent {
 
 
 
-    // Method that accepts a 2D array with tile objects and returns tiles displayed in rows
+    /**
+     * Method that accepts a 2D array with tile objects and renders as many rows as the 2D array has
+     * @param {*} data 2D array containing tiles to be rendered in rows
+     */
     renderBoard(data) {
         return data.map((dataRow, rowIndex) => {
             return (
@@ -36,8 +40,12 @@ class board extends PureComponent {
         });
     }
 
-    // Method that takes in the row of the 2D data array containing mines and returns as many tiles as
-    // columns there are in the row
+    /**
+     * Method that takes in the row of the 2D data array containing tiles and returns as many tiles as
+     * columns there are in the row
+     * @param {*} dataRow 
+     * @param {*} rowIndex 
+     */
     renderBoardRows(dataRow, rowIndex) {
         return dataRow.map((dataRowTile, colIndex) => {
             return (
@@ -53,15 +61,6 @@ class board extends PureComponent {
         });
     }
     ////////////////////////////////////////////////// handler methods
-    
-
-   
-
-    // method that handles change in board prop passed from <Game>. This is a result of lifting state upt from <Board> to <Game>
-    // DONT THINK I ACTUALLY NEED THIS
-    handleChange(e){
-        this.props.onBoardChange(e.target.value);
-    }
 
     handleStatusChange(e) {
         this.props.onStatusChange(e.target.value);
@@ -83,16 +82,11 @@ class board extends PureComponent {
 export default board;
 
 board.propTypes = {
-    height: PropTypes.number,
-    width: PropTypes.number,
-    mines: PropTypes.number
+    data: PropTypes.array,
+    gameStatus: PropTypes.string,
+    onStatusChange: PropTypes.func,
+    tileClicked: PropTypes.func,
+    tileFlagged: PropTypes.func
+
 
 }
-/* 
-    TO-DOS
-    Enable some way of strict typeing to enum gameStatus and tile properties (Maybe typescript)
-    Once strict typeing is available, merge findTiles() and findMines() into a single method. 
-    Find a way to avoid calling to findTiles() and findMines(), setting this values inside the state once the board is populated with mines and
-when the user flag tiles, respectively
-
-*/

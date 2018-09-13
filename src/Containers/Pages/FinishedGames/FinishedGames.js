@@ -88,10 +88,6 @@ class FinishedGames extends Component {
 
         }) : null;
 
-        /**
-         * TODO gamePost should scroll horizontally for mobile screens not vertically
-         */
-
         // Determine if show gamePosts  or spinner according if there's a 
         // connection with the server going on
         if (this.state.loading) {
