@@ -44,8 +44,57 @@ class game extends PureComponent {
         //Will be rendered once the difficulty has been selected 
         boardData: null,
         finished: false,
-        loading: false
+        loading: false,
+        // will be loaded with an object if checkForPendingGame() finds an unfinished game on server
+        pendingGame: null
     }
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////// Lifecycle hooks
+
+    // When component is mounted check if theres an unfinishedGame to load and present to the user
+    componentDidMount() {
+
+        // If user didnt play yet, check for unfinished game
+        if (this.state.movesCount === 0) {
+
+            // is there an unfinished game?
+            axios.get("/unfinishedgames.json")
+                .then(response => {
+                    //If there's a response, check if null 
+                    if (response.data) {
+                        // if response !null, theres an unfinished game
+                        this.setState({
+                            pendingGame: response.data,
+                        }, () => {
+                            // TODO prompt user about resuming the game 
+
+                            //WTF this is super clumsy, should find a better way to persist board and retrieve it
+                            // maybe redux?
+
+                            //If user wants to resume the game, fetch data and update
+                            const responseData = Object.entries(response.data);
+                            const data = responseData.slice(responseData.length-1)[0][1];
+                            this.setState(data)
+
+                            /**
+                             * Couldn't figure out how to prompt the user for resuming the game
+                             * Didnt find a way to render a component before render() gets called
+                             * I've made a question on SO about this: https://stackoverflow.com/questions/52320443/in-react-is-it-possible-to-render-a-component-inside-another-components-class
+                             */
+
+                        });
+                    }
+                }).catch(error => {
+                });
+
+
+        }
+    }
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////// class methods
 
     // Method that creates a board according to the difficulty selected by the user. Will be passed down to Board as a prop.
     // mineCount, height and width will be set inside this method. If not difficulty has been chosen yet, it will return null
@@ -56,16 +105,19 @@ class game extends PureComponent {
             let height = this.state.height;
             let width = this.state.width;
             let mines = this.state.mineCount;
+            
             //Render board 
             const emptyTiles = this.createEmptyArray(height, width);
             const populatedBoardWithMines = this.populateBoardWithMines(emptyTiles, height, width, mines);
             const populatedBoardWithNeighbours = this.populateTilesWithNeighbours(populatedBoardWithMines, height, width);
 
-            //Update state with new values
+            //Update state with new values 
             this.setState({
                 boardData: populatedBoardWithNeighbours,
                 gameStatus: GAMESTATUSES.notInitialized,
             });
+
+
 
         } else {
             //If this.state.difficulty === null
@@ -258,7 +310,7 @@ class game extends PureComponent {
                 this.setState({
                     gameStatus: GAMESTATUSES.won,
                     endTime: new Date().toString(),
-                    finished: true
+                    finished: true,
                 });
             }
 
@@ -335,6 +387,9 @@ class game extends PureComponent {
         //Obtain the clicked object, this will allow us to update state in a immutable way later
         const clickedTile = { ...this.state.boardData[x][y] };
 
+        // Check if first move of the user
+        const isFirstMove = this.state.movesCount === 0;
+
         //Check if clicked tile has not been revealed or flagged yet, if revealed do nothing. 
         if (!clickedTile.isRevealed && !clickedTile.isFlagged && !(this.state.gameStatus === GAMESTATUSES.won)) {
 
@@ -345,7 +400,9 @@ class game extends PureComponent {
                 alert("There is a mine, you explode! and lose btw");
 
                 //Check if player looses on first move, if so set endtime === startTime
-                if (this.state.movesCount === 0) {
+                if (isFirstMove) {
+
+                    //Every time user looses history will be null and erased from server
 
                     this.setState(prevState => {
 
@@ -366,19 +423,10 @@ class game extends PureComponent {
                             gameStatus: GAMESTATUSES.lost,
                             movesCount: prevState.movesCount + 1,
                             endTime: new Date().toString(),
-                            finished: true
+                            finished: true,
                         }
                     });
                 }
-
-                // this.setState(prevState => {
-                //     return {
-                //         gameStatus: GAMESTATUSES.lost,
-                //         movesCount: prevState.movesCount + 1,
-                //         endTime: new Date().toString(),
-                //         finished: true
-                //     }
-                // });
 
                 this.revealBoardContent();
 
@@ -396,8 +444,10 @@ class game extends PureComponent {
                     const currentBoard = [...this.state.boardData];
                     const updatedData = [...this.revealEmpty(x, y, currentBoard)];
 
-                    //Check if this is the first click, to start clocking gameDuration
-                    if (this.state.movesCount === 0) {
+                    //Check if this is the first click, to start clocking gameDuration 
+                    if (isFirstMove) {
+
+                        // update state and save history to server with a callback
                         this.setState(prevState => {
                             return {
                                 boardData: updatedData,
@@ -405,18 +455,21 @@ class game extends PureComponent {
                                 movesCount: prevState.movesCount + 1,
                                 startTime: new Date().toString(),
                             }
-                        });
+                        },
+                            /*DONT KNOW IF THIS IS RECCOMENDED OR NOT, COULDNT FIND ANY INFO THAT HELPS*/
+                            () => {
+                                this.postHistoryToServer(this.state);
+                            });
                     } else {
 
-                        //if not the first click just update state with status, movesCount and gameStatus
-
+                        //if not the first click just update state with status, movesCount, gameStatus and history
                         this.setState(prevState => {
                             return {
                                 boardData: updatedData,
                                 gameStatus: status,
                                 movesCount: prevState.movesCount + 1,
                             }
-                        });
+                        }, this.postHistoryToServer(this.state));
                     }
 
 
@@ -433,7 +486,7 @@ class game extends PureComponent {
                     updatedBoardData[x][y] = { ...clickedTile };
 
                     //Check if this is the first click, to start clocking gameDuration
-                    if (this.state.movesCount === 0) {
+                    if (isFirstMove) {
                         this.setState(prevState => {
                             return {
                                 boardData: updatedBoardData,
@@ -441,10 +494,12 @@ class game extends PureComponent {
                                 movesCount: prevState.movesCount + 1,
                                 startTime: new Date().toString(),
                             }
+                        }, () => {
+                            this.postHistoryToServer(this.state);
                         });
                     } else {
 
-                        //if not the first click just update state with status, movesCount and gameStatus
+                        //if not the first click just update state with status, movesCount and gameStatus 
 
                         this.setState(prevState => {
                             return {
@@ -452,6 +507,8 @@ class game extends PureComponent {
                                 gameStatus: status,
                                 movesCount: prevState.movesCount + 1,
                             }
+                        }, () => {
+                            this.postHistoryToServer(this.state);
                         });
                     }
 
@@ -469,13 +526,14 @@ class game extends PureComponent {
             movesCount: 0,
             startTime: null,
             endTime: null,
-            finished: false
+            finished: false,
         });
 
     }
 
+
     //Method that will set the selected Difficulty from the user to the state difficulty, and using a setState callback, initialize the
-    // board.
+    // board. Also if theres a pending game, erase it from server. 
     changeDifficulty(dif) {
 
         let difficultySelected = dif;
@@ -515,7 +573,13 @@ class game extends PureComponent {
                 movesCount: 0
             }, () => {
                 this.initializeBoard();
+                
+                // if theres a pending game, erase it from server. 
+                if (this.state.pendingGame){
+                    this.eraseHistoryFromServer()
+                }
             });
+        
     }
 
     // handles right clicks to flag or unflag a tile. Updates the counter of remaining mines and the 
@@ -523,6 +587,7 @@ class game extends PureComponent {
     rightClickHandler(event, x, y) {
         event.preventDefault();  // prevents default behaviour such as right click
         const clickedTile = { ...this.state.boardData[x][y] }
+
 
         //ommit if revealed and if  game is ended
         if (!clickedTile.isRevealed && !(this.state.gameStatus === GAMESTATUSES.won)) {
@@ -550,7 +615,8 @@ class game extends PureComponent {
 
             if (minesLeft === 0) {
 
-                //If user flagged possible last tile containing a mine, check if won with a setState callback to checkIfWin()
+                // If user flagged possible last tile containing a mine, check if won with a setState callback to checkIfWin()
+                // and save history to server in the same callback 
                 this.setState(prevState => {
                     return {
                         boardData: updatedData,
@@ -560,11 +626,13 @@ class game extends PureComponent {
 
                 },
                     () => {
-                        this.checkIfWin(this.state.mineCount)
+                        (() => { this.checkIfWin(this.state.mineCount) })();
+                        (() => { this.postHistoryToServer })()
+
                     });
             } else {
 
-                //If remaining mines !== 0 update only boardData, minesLeft and movesCount counter
+                //If remaining mines !== 0 update only boardData, minesLeft, movesCount and history
 
                 //Check if this is the first move to start clocking gameTime
                 if (this.state.movesCount === 0) {
@@ -575,8 +643,10 @@ class game extends PureComponent {
                             boardData: updatedData,
                             mineCount: minesLeft,
                             movesCount: prevState.movesCount + 1,
-                            startTime: new Date().toString()
+                            startTime: new Date().toString(),
                         }
+                    }, () => {
+                        this.postHistoryToServer(this.state);
                     });
 
                 } else {
@@ -586,8 +656,10 @@ class game extends PureComponent {
                         return {
                             boardData: updatedData,
                             mineCount: minesLeft,
-                            movesCount: prevState.movesCount + 1
+                            movesCount: prevState.movesCount + 1,
                         }
+                    }, () => {
+                        this.postHistoryToServer(this.state);
                     });
                 }
             }
@@ -599,8 +671,17 @@ class game extends PureComponent {
         this.setState({ gameStatus: newStatus });
     }
 
+    // If modal is closed, erase history from   server
     handleModalClosed() {
-        this.setState({ finished: false })
+
+        //Update state
+        this.setState({
+            finished: false,
+        });
+
+        // erase finishedGames from server
+        this.eraseHistoryFromServer();
+
     }
 
     ///////////////////////////////////////////////////////////////////// server handling
@@ -642,13 +723,50 @@ class game extends PureComponent {
 
                 alert("Something went wrong, please try again")
             });
+
+        //erase history from firebase
+        this.eraseHistoryFromServer();
     }
+
+    /**
+     * Erases the node unfinishedgames from firebase. Triggered when the user finishes a game
+     */
+    eraseHistoryFromServer() {
+        axios.delete("/unfinishedgames.json")
+            .then(response => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+
+    /**
+     * Posts history to server on the unfinishedGames node to keep track of every movement the user
+     * does. So in case the page reloads, progress from the lost game can be recovered
+     * 
+     * TODO use redux instead of server-saving
+     */
+    postHistoryToServer(state) {
+
+        // I should actually update the node with the last game state instead of posting new
+        // objects.
+        axios.post("/unfinishedgames.json", state)
+            .then(response => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+
+
     //////////////////////////////////////////////////////////////////// render
 
     render() {
         // dynamically rendering the board according to if the difficulty has been selected yet or not 
         // this will later be passed on to <Board> as prop
-        let boardData = this.state.difficulty ? this.state.boardData : null;
+        let boardData = this.state.difficulty || this.state ? this.state.boardData : null;
 
         // Determine if show GameSummary  or spinner according if there's a 
         // connection with the server going on

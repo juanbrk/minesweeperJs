@@ -7,6 +7,7 @@ import GameSummary from '../../../Components/GameSummary/GameSummary';
 import Spinner from '../../../Components/UI/Spinner/Spinner';
 import moment from 'moment';
 
+
 /**
  * Component that will show finished games retrieved from firebase and allows user to click
  * on them to display a game summary
@@ -22,22 +23,9 @@ class FinishedGames extends Component {
         loading: true
     }
 
-    // Will get the saved games to display using this method
+    // Will fetch  saved games that will be displayed
     componentDidMount() {
-        axios.get("/games.json")
-            .then(response => {
-                // Save retrieved games and hide spinner
-                this.setState({
-                    games: response.data,
-                    dataFetched: true,
-                    loading: false
-                })
-            }).catch(error => {
-                //hide spinner
-                this.setState({ loading: false });
-
-                alert("Something went wrong, please try again")
-            });
+        this.fetchSavedGames();
     }
 
 
@@ -64,6 +52,22 @@ class FinishedGames extends Component {
         });
     }
 
+    //////////////////////////////////////////////////////////////////// Server fetching
+    fetchSavedGames() {
+        axios.get("/games.json")
+            .then(response => {
+                // Save retrieved games and hide spinner
+                this.setState({
+                    games: response.data,
+                    dataFetched: true,
+                    loading: false
+                });
+            }).catch(error => {
+                //hide spinner
+                this.setState({ loading: false });
+                alert("Something went wrong, please try again");
+            });
+    }
 
     render() {
 
