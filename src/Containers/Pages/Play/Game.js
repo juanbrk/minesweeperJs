@@ -6,6 +6,7 @@ import Modal from '../../../Components/UI/Modal/Modal';
 import GameSummary from '../../../Components/GameSummary/GameSummary';
 import axios from 'axios';
 import Spinner from '../../../Components/UI/Spinner/Spinner';
+import moment from 'moment';
 
 const GAMESTATUSES = {
     notInitialized: "Make your first move",
@@ -340,10 +341,12 @@ class game extends PureComponent {
 
             if (JSON.stringify(mineArray) === JSON.stringify(flagArray)) {
 
+                //MM-DD-YYYY hh:mm 12hr 
+                const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
                 //if both arrays are equal, game is won. Update gameStatus
                 this.setState({
                     gameStatus: GAMESTATUSES.won,
-                    endTime: new Date().toString(),
+                    endTime: dateTime,
                     finished: true,
                 });
             }
@@ -443,14 +446,16 @@ class game extends PureComponent {
                 if (isFirstMove) {
 
                     //Every time user looses history will be null and erased from server
+                    //MM-DD-YYYY hh:mm 12hr 
+                    const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
 
                     this.setState(prevState => {
 
                         return {
                             gameStatus: GAMESTATUSES.lost,
                             movesCount: prevState.movesCount + 1,
-                            startTime: new Date().toString(),
-                            endTime: new Date().toString(),
+                            startTime: dateTime,
+                            endTime: dateTime,
                             finished: true
                         }
                     });
@@ -458,11 +463,15 @@ class game extends PureComponent {
                 } else {
 
                     //if movesCount >0 startTime != endTime
+
+                    //MM-DD-YYYY hh:mm 12hr 
+                    const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
+
                     this.setState(prevState => {
                         return {
                             gameStatus: GAMESTATUSES.lost,
                             movesCount: prevState.movesCount + 1,
-                            endTime: new Date().toString(),
+                            endTime: dateTime,
                             finished: true,
                         }
                     });
@@ -487,13 +496,16 @@ class game extends PureComponent {
                     //Check if this is the first click, to start clocking gameDuration 
                     if (isFirstMove) {
 
+                        //MM-DD-YYYY hh:mm 12hr 
+                        const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
+
                         // update state and save history to server with a callback
                         this.setState(prevState => {
                             return {
                                 boardData: updatedData,
                                 gameStatus: status,
                                 movesCount: prevState.movesCount + 1,
-                                startTime: new Date().toString(),
+                                startTime: dateTime,
                             }
                         },
                             /*DONT KNOW IF THIS IS RECCOMENDED OR NOT, COULDNT FIND ANY INFO THAT HELPS*/
@@ -527,12 +539,16 @@ class game extends PureComponent {
 
                     //Check if this is the first click, to start clocking gameDuration
                     if (isFirstMove) {
+
+                        //MM-DD-YYYY hh:mm 12hr 
+                        const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
+
                         this.setState(prevState => {
                             return {
                                 boardData: updatedBoardData,
                                 gameStatus: status,
                                 movesCount: prevState.movesCount + 1,
-                                startTime: new Date().toString(),
+                                startTime: dateTime,
                             }
                         }, () => {
                             this.postHistoryToServer(this.state);
@@ -629,8 +645,8 @@ class game extends PureComponent {
 
     }
 
-    
-    
+
+
     /**
      * handles right clicks to flag or unflag a tile. Updates the counter of remaining mines and the 
      * board state with flagged/unflagged tiles
@@ -691,13 +707,16 @@ class game extends PureComponent {
                 //Check if this is the first move to start clocking gameTime
                 if (this.state.movesCount === 0) {
 
+                    //MM-DD-YYYY hh:mm 12hr 
+                    const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
+
                     //If it is first move, set startTime
                     this.setState(prevState => {
                         return {
                             boardData: updatedData,
                             mineCount: minesLeft,
                             movesCount: prevState.movesCount + 1,
-                            startTime: new Date().toString(),
+                            startTime: dateTime
                         }
                     }, () => {
                         this.postHistoryToServer(this.state);

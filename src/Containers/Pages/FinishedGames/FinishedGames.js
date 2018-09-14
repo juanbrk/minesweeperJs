@@ -78,7 +78,8 @@ class FinishedGames extends Component {
         // Check if games array had been populated yet. If so, iterate over and return gamePosts
         // else return null. (ternary operator)
         let gamePosts = this.state.games !== null ? games.map(([key, value]) => {
-            const date = moment(value.started).format('ll');
+            //Fri Sep 07 2018 12:54:01 GMT-0300 (Argentina Standard Time)"
+            const date = moment(value.started, 'MM-DD-YYYY h:mm:ss a').format('ll');
             // Access to the value object {} and retrieve data to render
             return <GamePost
                 key={key}
