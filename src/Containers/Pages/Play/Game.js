@@ -86,6 +86,7 @@ class game extends PureComponent {
                         });
                     }
                 }).catch(error => {
+                    alert("Something went wrong, but you can still play!");
                 });
 
 
@@ -777,7 +778,7 @@ class game extends PureComponent {
                 //hide spinner
                 this.setState({ loading: false });
 
-                alert("Something went wrong, please try again")
+                alert("Something went wrong, but you can still keep playing")
             });
 
         //erase history from firebase
@@ -789,11 +790,8 @@ class game extends PureComponent {
      */
     eraseHistoryFromServer() {
         axios.delete("/unfinishedgames.json")
-            .then(response => {
-                console.log(response);
-            })
             .catch(error => {
-                console.log(error);
+                alert("Something went wrong, but you can still keep playing");
             });
     }
 
@@ -810,6 +808,7 @@ class game extends PureComponent {
             .then(response => {
             })
             .catch(error => {
+                alert("Something went wrong inside the code, you can keep playing though");
             });
     }
 

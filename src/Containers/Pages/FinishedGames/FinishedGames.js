@@ -65,7 +65,7 @@ class FinishedGames extends Component {
             }).catch(error => {
                 //hide spinner
                 this.setState({ loading: false });
-                alert("Something went wrong, please try again");
+                alert("We couldn't retrieve your games, please try reloading");
             });
     }
 
