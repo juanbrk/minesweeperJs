@@ -7,6 +7,7 @@ import GameSummary from '../../../Components/GameSummary/GameSummary';
 import axios from 'axios';
 import Spinner from '../../../Components/UI/Spinner/Spinner';
 import moment from 'moment';
+import withResumeGame from '../../HOC/withResumeGame/withResumeGame'
 
 const GAMESTATUSES = {
     notInitialized: "Make your first move",
@@ -53,48 +54,13 @@ class game extends PureComponent {
 
     //////////////////////////////////////////////////////////////////////////////////////////// Lifecycle hooks
 
-    // When component is mounted check if theres an unfinishedGame to load and present to the user
-    componentDidMount() {
 
-        // If user didnt play yet, check for unfinished game
-        if (this.state.movesCount === 0) {
-
-            // is there an unfinished game?
-            axios.get("/unfinishedgames.json")
-                .then(response => {
-                    //If there's a response, check if null 
-                    if (response.data) {
-                        // if response !null, theres an unfinished game
-                        this.setState({
-                            pendingGame: response.data,
-                        }, () => {
-                            // TODO prompt user about resuming the game 
-
-                            //this is super clumsy, should find a better way to persist board and retrieve it
-                            // maybe redux?
-
-                            //If user wants to resume the game, fetch data and update
-                            const responseData = Object.entries(response.data);
-                            const data = responseData.slice(responseData.length - 1)[0][1];
-                            this.setState(data)
-
-                            /**
-                             * Couldn't figure out how to prompt the user for resuming the game
-                             * Didnt find a way to render a component before render() gets called
-                             * I've made a question on SO about this: https://stackoverflow.com/questions/52320443/in-react-is-it-possible-to-render-a-component-inside-another-components-class
-                             */
-
-                        });
-                    }
-                }).catch(error => {
-                    alert("Something went wrong, but you can still play!");
-                });
-
-
+    // check for unfinishedGame if so, update state with it
+    componentDidUpdate(prevProps) {
+        if (this.props !== prevProps) {
+            this.setState(this.props.pendingGame)
         }
     }
-
-
 
     //////////////////////////////////////////////////////////////////////////////////////////// class methods
 
@@ -636,11 +602,6 @@ class game extends PureComponent {
                 movesCount: 0
             }, () => {
                 this.initializeBoard();
-
-                // if theres a pending game, erase it from server. 
-                if (this.state.pendingGame) {
-                    this.eraseHistoryFromServer()
-                }
             });
 
     }
@@ -804,15 +765,7 @@ class game extends PureComponent {
         this.eraseHistoryFromServer();
     }
 
-    /**
-     * Erases the node unfinishedgames from firebase. Triggered when the user finishes a game
-     */
-    eraseHistoryFromServer() {
-        axios.delete("/unfinishedgames.json")
-            .catch(error => {
-                alert("Something went wrong, but you can still keep playing");
-            });
-    }
+
 
     /**
      * Posts history to server on the unfinishedGames node to keep track of every movement the user
@@ -828,6 +781,14 @@ class game extends PureComponent {
             })
             .catch(error => {
                 alert("Something went wrong inside the code, you can keep playing though");
+            });
+    }
+
+    // TO-DO import this method from withResumeGame or smth to respect DRY
+    eraseHistoryFromServer() {
+        axios.delete("/unfinishedgames.json")
+            .catch(error => {
+                alert("Something went wrong, but you can still keep playing");
             });
     }
 
@@ -883,6 +844,6 @@ class game extends PureComponent {
 
 };
 
-export default game;
+export default withResumeGame(game, axios);
 
 
