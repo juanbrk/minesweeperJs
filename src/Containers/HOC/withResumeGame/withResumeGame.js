@@ -70,7 +70,7 @@ const withResumeGame = (WrappedComponent, axios) => {
         }
 
 
-        /////////////////////////////////////////////////////////////////////////////////// Handler
+        ////////////////////////////////////////////////////////////////////////////////// Handler
         handleModalClosed() {
             this.setState({ showModal: false });
             this.eraseHistoryFromServer()
