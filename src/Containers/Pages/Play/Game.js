@@ -603,6 +603,7 @@ class game extends PureComponent {
             }, () => {
                 this.initializeBoard();
             });
+            this.eraseHistoryFromServer();
 
     }
 
