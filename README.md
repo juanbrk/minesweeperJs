@@ -8,13 +8,16 @@ Board setup and Game Setup pages are still under construction.
 
 ## Getting Started
 
-You can clone this repo and run npm start on your CLI and the project will run at your browser's localhost:3000 port 
+You can clone this repo and on your CLI run npm install && npm start on your project directory  and the project will run at your browser's localhost:3000 port 
 or you can also access https://react-minesweeper-b33e6.firebaseapp.com/ to see it running online. 
 
 
 ## Built With
 
 * This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
+* This project uses npm's PropType  for props validation [PropType](https://www.npmjs.com/package/prop-types)
+* This project uses momentJs for parsing Dates [MomentJs](http://momentjs.com/)
+* This project uses CSS modules [CSS modules on github](https://github.com/css-modules/css-modules)
 
 ## Authors
 
@@ -23,7 +26,7 @@ or you can also access https://react-minesweeper-b33e6.firebaseapp.com/ to see i
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License 
 
 ## Acknowledgments
 
