@@ -9,13 +9,9 @@ import Spinner from '../../../Components/UI/Spinner/Spinner';
 import moment from 'moment';
 import withResumeGame from '../../HOC/withResumeGame/withResumeGame'
 
-const GAMESTATUSES = {
-    notInitialized: "Make your first move",
-    inProgress: "Not yet loosing",
-    won: "YOU WON!",
-    lost: "GAME OVER",
-}
-
+import { connect } from 'react-redux';
+import { actions as actionType } from '../../../store/actions';
+import { gameStatus } from './gameStatus';
 
 class game extends PureComponent {
     constructor(props) {
@@ -40,7 +36,7 @@ class game extends PureComponent {
         movesCount: 0,
         startTime: null,
         //Will be set when the board is initialized
-        gameStatus: GAMESTATUSES.notInitialized,
+        gameStatus: gameStatus.notInitialized,
         //Will be selected from the dropDown menu
         width: null,
         //Will be rendered once the difficulty has been selected 
@@ -53,39 +49,28 @@ class game extends PureComponent {
 
 
     //////////////////////////////////////////////////////////////////////////////////////////// Lifecycle hooks
-
-
-    // check for unfinishedGame if so, update state with it
     componentDidUpdate(prevProps) {
-        if (this.props !== prevProps) {
-            this.setState(this.props.pendingGame)
-        }
+        return this.props !== prevProps; 
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////// class methods
 
     // Method that creates a board depending on the difficulty selected by the user. Will be passed down to Board as a prop.
     // mineCount, height and width will be set inside this method. If not difficulty has been chosen yet, it will return null
-    initializeBoard() {
+    initializeBoard(dif, m) {
 
         //Board will be rendered if difficulty has been selected, if not, it wont 
-        if (this.state.difficulty !== null) {
+        if (dif !== null) {
             let height = this.state.height;
             let width = this.state.width;
-            let mines = this.state.mineCount;
+            let mines = m;
 
             //Render board 
             const emptyTiles = this.createEmptyArray(height, width);
             const populatedBoardWithMines = this.populateBoardWithMines(emptyTiles, height, width, mines);
             const populatedBoardWithNeighbours = this.populateTilesWithNeighbours(populatedBoardWithMines, height, width);
 
-            //Update state with new values 
-            this.setState({
-                boardData: populatedBoardWithNeighbours,
-                gameStatus: GAMESTATUSES.notInitialized,
-            });
-
-
+            this.props.onBoardInitialized(populatedBoardWithNeighbours)
 
         } else {
             //If this.state.difficulty === null
@@ -311,7 +296,7 @@ class game extends PureComponent {
                 const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
                 //if both arrays are equal, game is won. Update gameStatus
                 this.setState({
-                    gameStatus: GAMESTATUSES.won,
+                    gameStatus: gameStatus.won,
                     endTime: dateTime,
                     finished: true,
                 });
@@ -394,13 +379,10 @@ class game extends PureComponent {
      */
     tileClickedHandler = (x, y) => {
         //Obtain the clicked object, this will allow us to update state in a immutable way later
-        const clickedTile = { ...this.state.boardData[x][y] };
-
-        // Check if first move of the user
-        const isFirstMove = this.state.movesCount === 0;
+        const clickedTile = { ...this.props.board[x][y] };
 
         //Check if clicked tile has not been revealed or flagged yet, if revealed do nothing. 
-        if (!clickedTile.isRevealed && !clickedTile.isFlagged && !(this.state.gameStatus === GAMESTATUSES.won)) {
+        if (!clickedTile.isRevealed && !clickedTile.isFlagged && !(this.props.status === gameStatus.won)) {
 
             //If not revealed yet, check for mines
             if (clickedTile.containsMine) {
@@ -408,89 +390,26 @@ class game extends PureComponent {
                 //If contains mine, player looses, game status is updated and board content revealed
                 alert("There is a mine, you explode! and lose btw");
 
-                //Check if player looses on first move, if so set endtime === startTime
-                if (isFirstMove) {
-
-                    //Every time user looses history will be null and erased from server
-                    //MM-DD-YYYY hh:mm 12hr 
-                    const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
-
-                    this.setState(prevState => {
-
-                        return {
-                            gameStatus: GAMESTATUSES.lost,
-                            movesCount: prevState.movesCount + 1,
-                            startTime: dateTime,
-                            endTime: dateTime,
-                            finished: true
-                        }
-                    });
-
-                } else {
-
-                    //if movesCount >0 startTime != endTime
-
-                    //MM-DD-YYYY hh:mm 12hr 
-                    const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
-
-                    this.setState(prevState => {
-                        return {
-                            gameStatus: GAMESTATUSES.lost,
-                            movesCount: prevState.movesCount + 1,
-                            endTime: dateTime,
-                            finished: true,
-                        }
-                    });
-                }
-
+                // end the game and dispatch actions to update store
+                this.finishGameAndDispatchActions();
+                //reveal every tile
                 this.revealBoardContent();
 
             } else {
-
                 //if clicked mine !containsmine
 
                 // Variable to update gameStatus
-                let status = GAMESTATUSES.inProgress
+                // TODO delete this status. 
+                let status = gameStatus.inProgress
 
                 //If is not revealed nor flagged nor contains mine... is it empty?
                 if (clickedTile.isEmpty) {
 
                     //if empty, reveal and behave as if user clicked on every surrounding tile
-                    const currentBoard = [...this.state.boardData];
+                    const currentBoard = [...this.props.board];
                     const updatedData = [...this.revealEmpty(x, y, currentBoard)];
-
-                    //Check if this is the first click, to start clocking gameDuration 
-                    if (isFirstMove) {
-
-                        //MM-DD-YYYY hh:mm 12hr 
-                        const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
-
-                        // update state and save history to server with a callback
-                        this.setState(prevState => {
-                            return {
-                                boardData: updatedData,
-                                gameStatus: status,
-                                movesCount: prevState.movesCount + 1,
-                                startTime: dateTime,
-                            }
-                        },
-                            /*DONT KNOW IF THIS IS RECCOMENDED OR NOT, COULDNT FIND ANY INFO THAT HELPS*/
-                            () => {
-                                this.postHistoryToServer(this.state);
-                            });
-                    } else {
-
-                        //if not the first click just update state with status, movesCount, gameStatus and history
-                        this.setState(prevState => {
-                            return {
-                                boardData: updatedData,
-                                gameStatus: status,
-                                movesCount: prevState.movesCount + 1,
-                            }
-                        }, this.postHistoryToServer(this.state));
-                    }
-
-
+                    // reveal tile and dispatch actions to update store
+                    this.revealTileAndDispatchActions(updatedData, status);
 
                 } else {
 
@@ -498,42 +417,12 @@ class game extends PureComponent {
                     clickedTile.isRevealed = true;
 
                     //Create a new array of boardData to update the position of the revealed tile
-                    const updatedBoardData = [...this.state.boardData];
+                    const updatedBoardData = [...this.props.board];
 
                     // Assign the position of the revealed tile in the new array to the updated tile
                     updatedBoardData[x][y] = { ...clickedTile };
-
-                    //Check if this is the first click, to start clocking gameDuration
-                    if (isFirstMove) {
-
-                        //MM-DD-YYYY hh:mm 12hr 
-                        const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
-
-                        this.setState(prevState => {
-                            return {
-                                boardData: updatedBoardData,
-                                gameStatus: status,
-                                movesCount: prevState.movesCount + 1,
-                                startTime: dateTime,
-                            }
-                        }, () => {
-                            this.postHistoryToServer(this.state);
-                        });
-                    } else {
-
-                        //if not the first click just update state with status, movesCount and gameStatus 
-
-                        this.setState(prevState => {
-                            return {
-                                boardData: updatedBoardData,
-                                gameStatus: status,
-                                movesCount: prevState.movesCount + 1,
-                            }
-                        }, () => {
-                            this.postHistoryToServer(this.state);
-                        });
-                    }
-
+                    // reveal tile and dispatch actions to update store
+                    this.revealTileAndDispatchActions(updatedBoardData, status);
                 }
             }
 
@@ -548,7 +437,7 @@ class game extends PureComponent {
         const newData = this.initializeBoard(this.state.height, this.state.width, this.state.mineCount);
         this.setState({
             board: newData,
-            gameStatus: GAMESTATUSES.notInitialized,
+            gameStatus: gameStatus.notInitialized,
             movesCount: 0,
             startTime: null,
             endTime: null,
@@ -557,6 +446,74 @@ class game extends PureComponent {
 
     }
 
+
+    revealTileAndDispatchActions(updatedData, status) {
+
+        //Check if this is the first click, to start clocking gameDuration 
+        if (this.props.moves === 0) {
+
+            //MM-DD-YYYY hh:mm 12hr 
+            const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
+            // update state and save history to server with a callback
+            this.setState(prevState => {
+                return {
+                    boardData: updatedData,
+                    gameStatus: status,
+                    movesCount: prevState.movesCount + 1,
+                    startTime: dateTime,
+                };
+            },
+                /*DONT KNOW IF THIS IS RECCOMENDED OR NOT, COULDNT FIND ANY INFO THAT HELPS*/
+                () => {
+                    this.postHistoryToServer(this.state);
+                });
+        } else {
+
+            //if not the first click just update state with status, movesCount, gameStatus and history
+            this.setState(prevState => {
+                return {
+                    boardData: updatedData,
+                    gameStatus: status,
+                    movesCount: prevState.movesCount + 1,
+                }
+            }, this.postHistoryToServer(this.state));
+
+        }
+
+    }
+
+    finishGameAndDispatchActions() {
+
+        //MM-DD-YYYY hh:mm 12hr 
+        const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
+
+        //Check if player looses on first move, if so set endtime === startTime
+        if (this.props.moves === 0) {
+
+            this.setState(prevState => {
+                return {
+                    gameStatus: gameStatus.lost,
+                    movesCount: prevState.movesCount + 1,
+                    startTime: dateTime,
+                    endTime: dateTime,
+                    finished: true
+                };
+            });
+        } else {
+
+            //if movesCount > 0 startTime != endTime
+
+            this.setState(prevState => {
+                return {
+                    gameStatus: gameStatus.lost,
+                    movesCount: prevState.movesCount + 1,
+                    endTime: dateTime,
+                    finished: true,
+                }
+            });
+
+        }
+    }
 
     /**
      * Method that will update state.difficulty to the  selected Difficulty from the user and using a setState callback, initialize the
@@ -592,18 +549,19 @@ class game extends PureComponent {
                 break;
         }
 
-        // setState callback to initialize state properties and the board via callback
+        // setState callback to initialize state properties and dispatch the board to store via callback
         this.setState(
             {
-                difficulty: difficultySelected,
                 height: heightForDifficulty,
                 width: widthForDifficulty,
-                mineCount: minesForDifficulty,
-                movesCount: 0
-            }, () => {
-                this.initializeBoard();
-            });
-            this.eraseHistoryFromServer();
+            },() =>{
+                this.initializeBoard(difficultySelected, minesForDifficulty);
+            } );
+
+        //Dispatch actions to update store with level
+        this.props.onDifficultySelected(difficultySelected, heightForDifficulty, widthForDifficulty, minesForDifficulty );
+
+        this.eraseHistoryFromServer();
 
     }
 
@@ -622,7 +580,7 @@ class game extends PureComponent {
 
 
         //ommit if revealed and if  game is ended
-        if (!clickedTile.isRevealed && !(this.state.gameStatus === GAMESTATUSES.won)) {
+        if (!clickedTile.isRevealed && !(this.state.gameStatus === gameStatus.won)) {
 
             let minesLeft = this.state.mineCount;
 
@@ -797,9 +755,6 @@ class game extends PureComponent {
     //////////////////////////////////////////////////////////////////// render
 
     render() {
-        // dynamically rendering the board  if the difficulty has been selected yet or not 
-        // this will later be passed on to <Board> as prop
-        let boardData = this.state.difficulty || this.state ? this.state.boardData : null;
 
         // Determine to whether show <GameSummary>  or <Spinner> depending if there's a  connection with the server going on
         let gameSummary = <GameSummary
@@ -817,11 +772,11 @@ class game extends PureComponent {
             <div className="container">
                 <div>
                     <Menu
-                        mineCount={this.state.mineCount}
-                        gameStatus={this.state.gameStatus}
+                        mineCount={this.props.mines}
+                        gameStatus={this.props.status}
                         restartClick={this.restartClickHandler}
                         difficultyChangedHandler={(e) => this.changeDifficulty(e)}
-                        selectedDifficulty={this.state.difficulty} />
+                        selectedDifficulty={this.props.level} />
                 </div>
                 <Modal
                     show={this.state.finished}
@@ -830,7 +785,7 @@ class game extends PureComponent {
                 </Modal>
                 <div className={classes.board}>
                     <Board
-                        data={boardData}
+                        data={this.props.board}
                         gameStatus={this.state.gameStatus}
                         onStatusChange={(e) => this.handleStatusChange(e)}
                         tileClicked={this.tileClickedHandler}
@@ -845,6 +800,24 @@ class game extends PureComponent {
 
 };
 
-export default withResumeGame(game, axios);
+const mapStateToProps = (state) => {
+    return {
+        board: state.boardData,
+        moves: state.movesCount,
+        status: state.gameStatus,
+        mines: state.mineCount,
+        level: state.difficulty,
+        height: state.height,
+        width: state.width
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onDifficultySelected: (dif, h, w, m, b) => dispatch({ type: actionType.setLevel, difficulty: dif, height: h, width: w, mineCount: m }),
+        onBoardInitialized: (data) => dispatch({type:actionType.setBoard, board: data })
+    }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(withResumeGame(game, axios));
 
 

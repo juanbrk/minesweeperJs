@@ -2,13 +2,16 @@ import React, { Component } from 'react';
 import Modal from '../../../Components/UI/Modal/Modal';
 import UserPrompt from '../../../Components/UserPrompt/UserPrompt';
 
+import { connect } from 'react-redux';
+import { actions as actionType } from '../../../store/actions';
+
 /**
  * HOC that prompts user for resuming an unfinishedGame if there is one on server
  * @param {*} WrappedComponent Game component 
  * @param {*} axios axios instance that is used to query for unfinished games on server
  */
 const withResumeGame = (WrappedComponent, axios) => {
-    return class extends Component {
+     class Resume extends Component {
         constructor(props) {
             super(props);
 
@@ -21,7 +24,6 @@ const withResumeGame = (WrappedComponent, axios) => {
 
         state = {
             pendingGame: null,
-            resumeGame: false,
             showModal: false
         }
 
@@ -42,6 +44,7 @@ const withResumeGame = (WrappedComponent, axios) => {
 
                         // for displaying inside the modal, we have to obtain the key value pairs of response
                         let pendingGameList = Object.entries(response.data);
+                        console.log(pendingGameList);
 
                         // pendingGame == {boardData: ... , difficulty: .., ...}
                         let pendingGame = pendingGameList.slice(pendingGameList.length - 1)[0][1];
@@ -52,6 +55,9 @@ const withResumeGame = (WrappedComponent, axios) => {
                             pendingGame: pendingGame,
                             showModal: true
                         });
+                        
+
+                        
                     }
                 }).catch(error => {
                     alert("Something went wrong, but you can still play!");
@@ -76,9 +82,12 @@ const withResumeGame = (WrappedComponent, axios) => {
             this.eraseHistoryFromServer()
         }
 
-        // Handles 
+        /**
+         * Handles click on resume button and updates the state to hide modal and updates store to store pending game
+         */
         resumeGameHandler() {
-            this.setState({ resumeGame: true, showModal: false })
+            this.setState({  showModal: false })
+            this.props.onRetrievedGame(this.state.pendingGame);
         }
 
         render() {
@@ -94,12 +103,20 @@ const withResumeGame = (WrappedComponent, axios) => {
                         close={this.handleModalClosed}> {userPrompt}
                     </Modal>
                     <WrappedComponent
-                        {...this.props}
-                        pendingGame={this.state.resumeGame ? this.state.pendingGame : null} />
+                        {...this.props} />
                 </React.Fragment>
             )
         }
     }
+
+    const mapDispatchToProps = dispatch => {
+        return {
+            onRetrievedGame : (game) => dispatch({type: actionType.storePendingGame, pending: game }),
+
+        }
+    }
+
+    return connect(null, mapDispatchToProps)(Resume)
 }
 
 export default withResumeGame;
