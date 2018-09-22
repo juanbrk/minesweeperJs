@@ -9,41 +9,26 @@ import PropTypes from 'prop-types';
 */
 class GameSummary extends Component {
     render() {
-        // get the length of the object passed as prop to determine wether attachedKeys should
-        // hold 6 || 8 strings
-        var size = Object.keys(this.props.gameResults).length;
-
-
+        
         // Values that will replace props.gameResults' object keys. (Final result instead of gameStatus, and so on)
         // this.props.gameResults can contain both 6 || 8 properties 
-        const attachedKeys = size === 6 ? [
-            "End time",
+        const attachedKeys =  [
             "Level",
-            "Number of mines left",
             "Number of movements",
+            "Number of mines left",
             "Start time",
+            "End time",
             "Final result",
-        ] : [
-                "End time",
-                "Board height",
-                "Level",
-                "Number of mines left",
-                "Number of movements",
-                "Start time",
-                "Final result",
-                "Board width",
-            ];
+        ] ;
 
         // Receive the JS object that was passed as props.gameResults. 
 
-        // for displaying inside the modal, we have to obtain the key value pairs of only non objects values
-        const resultsEntries = Object.entries(this.props.gameResults);
 
-        // filter boardData that is an object, to display only non objects and 
-        const filteredResults = resultsEntries.filter(([_, value]) => typeof value !== "object" && typeof value !== "boolean" && typeof value !== "undefined");
+        // for displaying inside the modal, we have to obtain the key value pairs of only non objects values
+        const resultsEntries =  Object.entries(this.props.gameResults);
 
         //map every result and return it as a list item todisplay on modal. 
-        const gameSummary = filteredResults.map(([key, value], index) => {
+        const gameSummary =  resultsEntries.map(([key, value], index) => {
             return (
                 <li key={key}>
                     <b>{attachedKeys[index]}</b>: {value}

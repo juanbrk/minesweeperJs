@@ -44,11 +44,10 @@ const withResumeGame = (WrappedComponent, axios) => {
 
                         // for displaying inside the modal, we have to obtain the key value pairs of response
                         let pendingGameList = Object.entries(response.data);
-                        console.log(pendingGameList);
 
                         // pendingGame == {boardData: ... , difficulty: .., ...}
                         let pendingGame = pendingGameList.slice(pendingGameList.length - 1)[0][1];
-                        console.log(pendingGame)
+                        console.log(pendingGame);
 
                         //update state 
                         this.setState({
