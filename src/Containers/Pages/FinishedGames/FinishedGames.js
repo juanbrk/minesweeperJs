@@ -71,9 +71,9 @@ class FinishedGames extends Component {
 
     render() {
 
-        // Check if data has been fetched to render components properly, if fetched store
+        // Check if data has been fetched adn games !== null to render components properly, if fetched store
         // in an array with Object.entries
-        const games = this.state.dataFetched ? Object.entries(this.state.games) : null;
+        const games = this.state.games ? Object.entries(this.state.games) : null;
 
         // Check if games array had been populated yet. If so, iterate over and return gamePosts
         // else return null. (ternary operator). games is reversed to display newer games first
@@ -102,12 +102,15 @@ class FinishedGames extends Component {
             title={"This is how you played"}
             showContinue /> : null;
 
+            // Check if game !== null to display an empty message or a CTA message
+            let subtitle = this.state.games  ?    "Click on any game to see how you performed": "You'll see your progress stored here after saving a game";
+            
 
         return (
             <React.Fragment>
 
                 <h2 className={classes.title}>Take a look at your finished games</h2>
-                <h3 className={classes.subtitle}>Click on any game to see how you performed</h3>
+                <h3 className={classes.subtitle}>{subtitle}</h3>
                 <Modal
                     show={this.state.postClicked}
                     close={this.handleModalClosed}>  {gameSummary}
