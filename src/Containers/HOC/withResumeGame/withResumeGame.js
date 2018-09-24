@@ -111,7 +111,6 @@ const withResumeGame = (WrappedComponent, axios) => {
     const mapDispatchToProps = dispatch => {
         return {
             onRetrievedGame : (game) => dispatch({type: actionType.storePendingGame, pending: game }),
-
         }
     }
 

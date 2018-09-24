@@ -9,29 +9,29 @@ import PropTypes from 'prop-types';
 */
 class GameSummary extends Component {
     render() {
-        
+
         // Values that will replace props.gameResults' object keys. (Final result instead of gameStatus, and so on)
         // this.props.gameResults can contain both 6 || 8 properties 
-        const attachedKeys =  [
-            "Level",
-            "Number of movements",
-            "Number of mines left",
-            "Start time",
-            "End time",
-            "Final result",
-        ] ;
+        const attachedKeys = {
+            ended:"End time",
+            level:"Level",
+            minesLeft:"Number of mines left",
+            moves:"Number of movements",
+            started:"Start time",
+            status: "Final result",
+        };
 
         // Receive the JS object that was passed as props.gameResults. 
 
 
         // for displaying inside the modal, we have to obtain the key value pairs of only non objects values
-        const resultsEntries =  Object.entries(this.props.gameResults);
+        const resultsEntries = Object.entries(this.props.gameResults);
 
         //map every result and return it as a list item todisplay on modal. 
-        const gameSummary =  resultsEntries.map(([key, value], index) => {
+        const gameSummary = resultsEntries.map(([key, value], index) => {
             return (
                 <li key={key}>
-                    <b>{attachedKeys[index]}</b>: {value}
+                    <b>{attachedKeys[key]}</b>: {value}
                 </li>
             );
         });
@@ -53,10 +53,17 @@ class GameSummary extends Component {
             clicked={this.props.continue}
             btnType={"success"}>Continue</Button> : null;
 
+        //Asign title dynamically
+        let title = "Game summary";
+        if (this.props.modalTitle) {
+            title = this.props.modalTitle
+
+        }
+
 
         return (
             <React.Fragment>
-                <h2 className={classes.title}>Game Summary</h2>
+                <h2 className={classes.title}>{title}</h2>
                 <div className={classes.gameStats}>
                     <p>{this.props.title}</p>
                     <ul>

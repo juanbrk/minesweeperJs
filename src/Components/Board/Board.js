@@ -62,17 +62,13 @@ class board extends PureComponent {
     }
     ////////////////////////////////////////////////// handler methods
 
-    handleStatusChange(e) {
-        this.props.onStatusChange(e.target.value);
-      }
 
     render() {
         // Render board only if data passed as prop is not null
         const board = this.props.data ? this.renderBoard(this.props.data): null  
         return (
             <div 
-                className={classes.board}
-                onChange={this.handleStatusChange}>
+                className={classes.board}>
                 {board}
             </div>
         );
@@ -83,10 +79,7 @@ export default board;
 
 board.propTypes = {
     data: PropTypes.array,
-    gameStatus: PropTypes.string,
     onStatusChange: PropTypes.func,
     tileClicked: PropTypes.func,
     tileFlagged: PropTypes.func
-
-
 }

@@ -20,7 +20,6 @@ class game extends PureComponent {
         //Check which of this binding methods is actually necessary
         this.initializeBoard = this.initializeBoard.bind(this);
         this.populateBoardWithMines = this.populateBoardWithMines.bind(this);
-        this.restartClickHandler = this.restartClickHandler.bind(this);
         this.changeDifficulty = this.changeDifficulty.bind(this);
         this.tileClickedHandler = this.tileClickedHandler.bind(this);
         this.rightClickHandler = this.rightClickHandler.bind(this);
@@ -29,41 +28,25 @@ class game extends PureComponent {
     }
 
     state = {
-        endTime: null,
         height: null,
-        difficulty: null,
-        mineCount: null,
-        movesCount: 0,
-        startTime: null,
-        //Will be set when the board is initialized
-        gameStatus: gameStatus.notInitialized,
         //Will be selected from the dropDown menu
         width: null,
-        //Will be rendered once the difficulty has been selected 
-        boardData: null,
         finished: false,
         loading: false,
-        // will be loaded with an object if checkForPendingGame() finds an unfinished game on server
-        pendingGame: null
     }
 
 
     //////////////////////////////////////////////////////////////////////////////////////////// Lifecycle hooks
-    componentDidUpdate(prevProps) {
+    componentDidUpdate() {
         if (this.props.post) {
             // if an action that was dispatched needs to post to server when updating, this.props.post will be true
 
             //if an action that was dispatched makes the component check if the game is won when updating, this.props.check will be true
-            (this.props.check) ? this.checkIfWin() : null
+            (this.props.check) ? this.checkIfWin() : null;
 
             //post history to server
             return this.postHistoryToServer();
 
-        } else {
-            // Check if the restored game is one that has actually ended
-            (this.props.mines === 0) ? this.checkIfWin() : null;
-
-            return this.props !== prevProps;
         }
 
     }
@@ -406,6 +389,7 @@ class game extends PureComponent {
                 break;
         }
 
+        //TODO handle this.initializeBoard() inside componentDidUpdate
         // setState callback to initialize state properties and dispatch the board to store via callback
         this.setState(
             {
@@ -484,24 +468,6 @@ class game extends PureComponent {
     }
 
     /**
-     * Handles clicks on restart button. Updates the state with a new board where every tile is not revealed and with
-     * mines located in different positions than the previous
-     */
-    restartClickHandler = () => {
-        const newData = this.initializeBoard(this.state.height, this.state.width, this.state.mineCount);
-        this.setState({
-            board: newData,
-            gameStatus: gameStatus.notInitialized,
-            movesCount: 0,
-            startTime: null,
-            endTime: null,
-            finished: false,
-        });
-
-    }
-
-
-    /**
      * handles right clicks to flag or unflag a tile. Updates the counter of remaining mines and the 
      * board state with flagged/unflagged tiles
      * @param {*} event event that triggered this method call
@@ -540,16 +506,6 @@ class game extends PureComponent {
         }
     }
 
-
-
-    /**
-     * Method to handle status change of the game when clicking tiles from Board.
-     * @param {*} newStatus updated game progress to be displayed on the menu
-     */
-    handleStatusChange(newStatus) {
-        this.setState({ gameStatus: newStatus });
-    }
-
     /**
      * Handles click for closing displayed modal. when closed, also erase history from   server
      */
@@ -576,15 +532,26 @@ class game extends PureComponent {
         this.setState({ loading: true });
 
         const game = {
-            ended: this.state.endTime,
-            height: this.state.height,
-            level: this.state.difficulty,
-            minesLeft: this.state.mineCount,
-            moves: this.state.movesCount,
-            started: this.state.startTime,
-            status: this.state.gameStatus,
-            width: this.state.width,
+            level:this.props.level,
+            moves:  this.props.moves,
+            minesLeft: this.props.mines,
+            started: this.props.start,
+            ended: this.props.end,
+            status: this.props.status,
         }
+
+        /**
+         * const currentGame = {
+            height: this.props.height,
+            width: this.props.width,
+            difficulty: this.props.level,
+            mineCount: this.props.mines,
+            movesCount: this.props.moves,
+            startTime: this.props.start,
+            boardData: this.props.board,
+            status: gameStatus.inProgress
+        }
+         */
 
         axios.post("/games.json", game)
             .then(response => {
@@ -623,7 +590,6 @@ class game extends PureComponent {
             mineCount: this.props.mines,
             movesCount: this.props.moves,
             startTime: this.props.start,
-            //Will be rendered once the difficulty has been selected 
             boardData: this.props.board,
             status: gameStatus.inProgress
 
@@ -718,13 +684,15 @@ class game extends PureComponent {
             if (this.props.moves === 0) {
 
                 const dateTime = moment(new Date()).format("MM-DD-YYYY h:mm:ss a");
+                // onFlagOnFirstMove: (data, mines, dateTime)
                 // flag tile and dispatch actions to update store
                 this.props.onFlagOnFirstMove(updatedData, minesLeft, dateTime)
 
             } else {
 
                 // If not first move, update state without setting startTime
-                this.props.onFlagOnFirstMove(updatedData, minesLeft);
+                // onFlagTile: (data, mines)
+                this.props.onFlagTile(updatedData, minesLeft);
 
             }
         }
@@ -737,12 +705,12 @@ class game extends PureComponent {
     render() {
 
         let gameResults = this.state.finished ? {
-            difficulty: this.props.level,
-            movements: this.props.moves,
+            level: this.props.level,
+            moves: this.props.moves,
             minesLeft: this.props.mines,
-            startTime: this.props.start,
-            endTime: this.props.end,
-            result: this.props.status,
+            started: this.props.start,
+            ended: this.props.end,
+            status: this.props.status,
         } : null;
 
         // Determine to whether show <GameSummary>  or <Spinner> depending if there's a  connection with the server going on
@@ -751,6 +719,7 @@ class game extends PureComponent {
             save={this.saveGameHandler}
             cancel={this.handleModalClosed}
             title={"Your last game stats:"}
+            modalTitle={this.props.status}
             showSave showCancel /> : null;
 
         if (this.state.loading) {
@@ -763,7 +732,6 @@ class game extends PureComponent {
                     <Menu
                         mineCount={this.props.mines}
                         gameStatus={this.props.status}
-                        restartClick={this.restartClickHandler}
                         difficultyChangedHandler={(e) => this.changeDifficulty(e)}
                         selectedDifficulty={this.props.level} />
                 </div>
@@ -775,8 +743,6 @@ class game extends PureComponent {
                 <div className={classes.board}>
                     <Board
                         data={this.props.board}
-                        gameStatus={this.state.gameStatus}
-                        onStatusChange={(e) => this.handleStatusChange(e)}
                         tileClicked={this.tileClickedHandler}
                         tileFlagged={this.rightClickHandler}
                     />
