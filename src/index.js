@@ -7,10 +7,22 @@ import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
 
 import { Provider } from 'react-redux'
-import { createStore } from 'redux'
+import { createStore, applyMiddleware, compose  } from 'redux'
 import reducer from './store/reducer';
 
-const store =createStore(reducer);
+const logger = store => next => action =>{
+    console.log("[Middleware]", action.type);
+    next(action);
+    console.log("[Middleware]",store.getState());
+}
+
+// Redux devTools constant to follow store changes. 
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+const store =createStore(
+    reducer,
+    composeEnhancers(applyMiddleware(logger))
+    );
 
 
 //Global default URL for posting and fetching data to firebase

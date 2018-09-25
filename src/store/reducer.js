@@ -1,4 +1,4 @@
-import { actions as actionType } from './actions';
+import { actions as actionType } from './actions/actions';
 import { gameStatus } from '../Containers/Pages/Play/gameStatus';
 const initialState = {
     boardData: null,
@@ -17,24 +17,19 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
     switch (action.type) {
-        case actionType.storePendingGame:
+        case actionType.STORE_PENDING:
             return {
                 ...state,
                 boardData: [...action.pending.boardData],
                 difficulty: action.pending.difficulty,
-                gameStatus: action.pending.gameStatus,
+                gameStatus: action.pending.status,
                 height: action.pending.height,
                 width: action.pending.width,
                 startTime: action.pending.startTime,
                 mineCount: action.pending.mineCount,
                 movesCount: action.pending.movesCount
             };
-        case actionType.erasePendingGame:
-            return {
-                ...state,
-                pendingGame: null
-            };
-        case actionType.setLevel:
+        case actionType.SET_LEVEL:
             return {
                 ...state,
                 difficulty: action.difficulty,
@@ -46,7 +41,7 @@ const reducer = (state = initialState, action) => {
                 postToServer: false,
                 checkIfWin: false
             };
-        case actionType.setBoard:
+        case actionType.SET_BOARD:
             return {
                 ...state,
                 boardData: [...action.board],

@@ -10,7 +10,7 @@ import moment from 'moment';
 import withResumeGame from '../../HOC/withResumeGame/withResumeGame'
 
 import { connect } from 'react-redux';
-import { actions as actionType } from '../../../store/actions';
+import { actions as actionType } from '../../../store/actions/actions';
 import { gameStatus } from './gameStatus';
 
 class game extends PureComponent {
@@ -773,8 +773,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onDifficultySelected: (dif, h, w, m, b) => dispatch({ type: actionType.setLevel, difficulty: dif, height: h, width: w, mineCount: m }),
-        onBoardInitialized: (data) => dispatch({ type: actionType.setBoard, board: data }),
+        onDifficultySelected: (dif, h, w, m) => dispatch({ type: actionType.SET_LEVEL, difficulty: dif, height: h, width: w, mineCount: m }),
+        onBoardInitialized: (data) => dispatch({ type: actionType.SET_BOARD, board: data }),
         onLosingOnFirstMove: (dateTime) => dispatch({ type: actionType.endOnFirstMove, time: dateTime }),
         onFinishGame: (timeEnded) => dispatch({ type: actionType.finishGame, time: timeEnded }),
         onRevealFirstTile: (data, dateTime) => dispatch({ type: actionType.revealFirstTile, board: data, time: dateTime }),

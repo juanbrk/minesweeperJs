@@ -1,8 +1,7 @@
 export const actions = {
-    storePendingGame: "STORE_PENDING",
-    erasePendingGame: "ERASE_PENDING",
-    setLevel: "SET_DIFFICULTY",
-    setBoard: "SET_BOARD",
+    STORE_PENDING: "STORE_PENDING",
+    SET_LEVEL: "SET_DIFFICULTY",
+    SET_BOARD: "SET_BOARD",
     endOnFirstMove: "END_FIRST",
     finishGame: "FINISH",
     revealFirstTile: "REVEAL_FIRST",
@@ -12,5 +11,12 @@ export const actions = {
     flagTile: "FLAG",
     gameWon: "WON_GAME",
     updateBoard: "UPDATE_BOARD"
-
 }
+
+export const storePendingGame = (game) => {
+    return {
+        type: actions.STORE_PENDING,
+        pending: game
+    }
+}
+

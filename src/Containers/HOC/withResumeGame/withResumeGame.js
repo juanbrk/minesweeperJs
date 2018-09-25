@@ -3,7 +3,7 @@ import Modal from '../../../Components/UI/Modal/Modal';
 import UserPrompt from '../../../Components/UserPrompt/UserPrompt';
 
 import { connect } from 'react-redux';
-import { actions as actionType } from '../../../store/actions';
+import {storePendingGame} from '../../../store/actions/actions'
 
 /**
  * HOC that prompts user for resuming an unfinishedGame if there is one on server
@@ -110,7 +110,7 @@ const withResumeGame = (WrappedComponent, axios) => {
 
     const mapDispatchToProps = dispatch => {
         return {
-            onRetrievedGame : (game) => dispatch({type: actionType.storePendingGame, pending: game }),
+            onRetrievedGame : (game) => dispatch(storePendingGame(game)),
         }
     }
 
