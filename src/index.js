@@ -9,6 +9,7 @@ import axios from 'axios';
 import { Provider } from 'react-redux'
 import { createStore, applyMiddleware, compose  } from 'redux'
 import reducer from './store/reducer';
+import thunk from 'redux-thunk';
 
 const logger = store => next => action =>{
     console.log("[Middleware]", action.type);
@@ -21,7 +22,7 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const store =createStore(
     reducer,
-    composeEnhancers(applyMiddleware(logger))
+    composeEnhancers(applyMiddleware(logger, thunk))
     );
 
 

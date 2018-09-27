@@ -3,7 +3,7 @@ import Modal from '../../../Components/UI/Modal/Modal';
 import UserPrompt from '../../../Components/UserPrompt/UserPrompt';
 
 import { connect } from 'react-redux';
-import {storePendingGame} from '../../../store/actions/actions'
+import {storePendingGame} from '../../../store/actions/actionCreators'
 
 /**
  * HOC that prompts user for resuming an unfinishedGame if there is one on server

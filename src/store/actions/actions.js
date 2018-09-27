@@ -2,21 +2,18 @@ export const actions = {
     STORE_PENDING: "STORE_PENDING",
     SET_LEVEL: "SET_DIFFICULTY",
     SET_BOARD: "SET_BOARD",
-    endOnFirstMove: "END_FIRST",
-    finishGame: "FINISH",
-    revealFirstTile: "REVEAL_FIRST",
-    revealTile: "REVEAL",
-    checkIfWin: "CHECK_IF_WIN",
-    flagFirstMove: "FLAG_FIRST",
-    flagTile: "FLAG",
-    gameWon: "WON_GAME",
-    updateBoard: "UPDATE_BOARD"
+    END_ON_FIRST_MOVE: "END_FIRST",
+    FINISH_GAME: "FINISH",
+    REVEAL_FIRST_TILE: "REVEAL_FIRST",
+    REVEAL_TILE: "REVEAL",
+    FLAG_AND_CHECK: "FLAG_AND_CHECK",
+    FLAG_FIRST_MOVE: "FLAG_FIRST",
+    FLAG_TILE: "FLAG",
+    GAME_WON: "WON_GAME",
+    UPDATE_BOARD: "UPDATE_BOARD",
+    FETCH_PENDING_GAME: "FETCH_PENDING_GAME"
 }
 
-export const storePendingGame = (game) => {
-    return {
-        type: actions.STORE_PENDING,
-        pending: game
-    }
-}
+
+
 

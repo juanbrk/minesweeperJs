@@ -1,5 +1,7 @@
 import { actions as actionType } from './actions/actions';
+
 import { gameStatus } from '../Containers/Pages/Play/gameStatus';
+
 const initialState = {
     boardData: null,
     difficulty: null,
@@ -48,7 +50,7 @@ const reducer = (state = initialState, action) => {
                 postToServer: false,
                 checkIfWin: false
             };
-        case actionType.endOnFirstMove:
+        case actionType.END_ON_FIRST_MOVE:
             return {
                 ...state,
                 gameStatus: gameStatus.lost,
@@ -58,7 +60,7 @@ const reducer = (state = initialState, action) => {
                 postToServer: false,
                 checkIfWin: false
             };
-        case actionType.finishGame:
+        case actionType.FINISH_GAME:
             return {
                 ...state,
                 gameStatus: gameStatus.lost,
@@ -67,7 +69,7 @@ const reducer = (state = initialState, action) => {
                 postToServer: false,
                 checkIfWin: false
             };
-        case actionType.revealFirstTile:
+        case actionType.REVEAL_FIRST_TILE:
             return {
                 ...state,
                 boardData: [...action.board],
@@ -77,7 +79,7 @@ const reducer = (state = initialState, action) => {
                 postToServer: true,
                 checkIfWin: false
             };
-        case actionType.revealTile:
+        case actionType.REVEAL_TILE:
             return {
                 ...state,
                 boardData: [...action.board],
@@ -86,7 +88,7 @@ const reducer = (state = initialState, action) => {
                 postToServer: true,
                 checkIfWin: false
             };
-        case actionType.checkIfWin:
+        case actionType.FLAG_AND_CHECK:
             return {
                 ...state,
                 boardData: [...action.board],
@@ -95,7 +97,7 @@ const reducer = (state = initialState, action) => {
                 postToServer: true,
                 checkIfWin: true
             };
-        case actionType.flagFirstMove:
+        case actionType.FLAG_FIRST_MOVE:
             return {
                 ...state,
                 boardData: [...action.board],
@@ -105,7 +107,7 @@ const reducer = (state = initialState, action) => {
                 postToServer: true,
                 checkIfWin: false
             };
-        case actionType.flagTile:
+        case actionType.FLAG_TILE:
             return {
                 ...state,
                 boardData: [...action.board],
@@ -114,7 +116,7 @@ const reducer = (state = initialState, action) => {
                 postToServer: true,
                 checkIfWin: false
             };
-        case actionType.gameWon:
+        case actionType.GAME_WON:
             return {
                 ...state,
                 gameStatus: gameStatus.won,
@@ -122,7 +124,7 @@ const reducer = (state = initialState, action) => {
                 postToServer: false,
                 checkIfWin: false
             };
-        case actionType.updateBoard:
+        case actionType.UPDATE_BOARD:
             return {
                 ...state,
                 boardData: [...action.board]

@@ -10,7 +10,7 @@ import moment from 'moment';
 import withResumeGame from '../../HOC/withResumeGame/withResumeGame'
 
 import { connect } from 'react-redux';
-import { actions as actionType } from '../../../store/actions/actions';
+import  * as actionCreators  from '../../../store/actions/actionCreators';
 import { gameStatus } from './gameStatus';
 
 class game extends PureComponent {
@@ -448,6 +448,7 @@ class game extends PureComponent {
                     const updatedData = [...this.revealEmpty(x, y, currentBoard)];
                     // reveal tile and dispatch actions to update store
                     this.revealTileAndDispatchActions(updatedData);
+                    console.log(`[GAME] Revealed tile in position ${x} and ${y}`);
 
                 } else {
 
@@ -461,6 +462,7 @@ class game extends PureComponent {
                     updatedBoardData[x][y] = { ...clickedTile };
                     // reveal tile and dispatch actions to update store
                     this.revealTileAndDispatchActions(updatedBoardData);
+                    console.log(`[GAME] Revealed tile in position ${x} and ${y}`);
                 }
             }
 
@@ -619,7 +621,7 @@ class game extends PureComponent {
     ///////////////////////////////////////////////////////////////////// DISPATCHING ACTIONS
     /**
      * Reveals clicked tiles that does not contain mines and dispatch actions to update store. 
-     * @param {number[][]} updatedData board data after the revealed tile/s that will update the current board in store 
+     * @param {number[][]} updatedData board data after revealing the tile/s that will update the current board in store 
      */
     revealTileAndDispatchActions(updatedData) {
 
@@ -773,17 +775,17 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onDifficultySelected: (dif, h, w, m) => dispatch({ type: actionType.SET_LEVEL, difficulty: dif, height: h, width: w, mineCount: m }),
-        onBoardInitialized: (data) => dispatch({ type: actionType.SET_BOARD, board: data }),
-        onLosingOnFirstMove: (dateTime) => dispatch({ type: actionType.endOnFirstMove, time: dateTime }),
-        onFinishGame: (timeEnded) => dispatch({ type: actionType.finishGame, time: timeEnded }),
-        onRevealFirstTile: (data, dateTime) => dispatch({ type: actionType.revealFirstTile, board: data, time: dateTime }),
-        onRevealTile: (data) => dispatch({ type: actionType.revealTile, board: data }),
-        onFlaggedTileCheckIfWin: (data, mines) => dispatch({ type: actionType.checkIfWin, board: data, mineCount: mines }),
-        onFlagOnFirstMove: (data, mines, dateTime) => dispatch({ type: actionType.flagFirstMove, board: data, mineCount: mines, time: dateTime }),
-        onFlagTile: (data, mines) => dispatch({ type: actionType.flagTile, board: data, mineCount: mines }),
-        onGameWon: (endTime) => dispatch({ type: actionType.gameWon, time: endTime }),
-        onUpdateBoard: (data) => dispatch({type: actionType.updateBoard, board: data })
+        onDifficultySelected: (dif, h, w, m) => dispatch(actionCreators.setLevel(dif, h, w, m)),
+        onBoardInitialized: (data) => dispatch(actionCreators.initializeBoard(data)),
+        onLosingOnFirstMove: (dateTime) => dispatch(actionCreators.endOnFirstMove(dateTime)),
+        onFinishGame: (timeEnded) => dispatch(actionCreators.finishGame(timeEnded)),
+        onRevealFirstTile: (data, dateTime) => dispatch(actionCreators.revealFirstTile(data, dateTime)),
+        onRevealTile: (data) => dispatch(actionCreators.revealTile(data)),
+        onFlaggedTileCheckIfWin: (data, mines) => dispatch(actionCreators.checkIfWin(data, mines)),
+        onFlagOnFirstMove: (data, mines, dateTime) => dispatch(actionCreators.flagOnFirstMove(data, mines, dateTime)),
+        onFlagTile: (data, mines) => dispatch(actionCreators.flagTile(data, mines)),
+        onGameWon: (endTime) => dispatch(actionCreators.gameWon(endTime)),
+        onUpdateBoard: (data) => dispatch(actionCreators.updateBoard(data))
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(withResumeGame(game, axios));
